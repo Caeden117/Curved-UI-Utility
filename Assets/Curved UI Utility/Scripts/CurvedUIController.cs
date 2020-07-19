@@ -112,7 +112,7 @@ namespace CurvedUIUtility
             SetZoomInternal(targetZoom);
         }
 
-        // Sets stored zoom/curvatur elevel and updates our material.
+        // Sets stored zoom/curvature level and updates our material.
         private void SetZoomInternal(float zoom)
         {
             currentZoom = zoom;
