@@ -37,31 +37,31 @@ This repository, along with the source code for Curved UI Utility, also contains
 **Setup is more complicated than I'd like at this point in development**, but if you are interested in setting this up for your project, here's the setup process:
 
 0. Grab a copy of Curved UI Utility.
-  - If available, grab a `.unitypackage` from [Releases](https://github.com/Caeden117/Curved-UI-Utility/releases/latest).
-  - If available, grab an artifact from [the latest successful Action](https://github.com/Caeden117/Curved-UI-Utility/actions).
-    - **WARNING!** These can be less stable than stable releases!
-  - If all else fails, clone the repository and copy/paste the `Assets/Curved UI Utility` folder into your project.
+    - If available, grab a `.unitypackage` from [Releases](https://github.com/Caeden117/Curved-UI-Utility/releases/latest).
+    - If available, grab an artifact from [the latest successful Action](https://github.com/Caeden117/Curved-UI-Utility/actions).
+        - **WARNING!** These can be less stable than stable releases!
+    - If all else fails, clone the repository and copy/paste the `Assets/Curved UI Utility` folder into your project.
 1. Create a Camera designed to render the curved UI.
 2. Add the `CurvedUIRenderer` component to this camera.
-  - This will change the camera settings to only render UI, so you do not need to do that manually.
+    - This will change the camera settings to only render UI, so you do not need to do that manually.
 3. Ensure that the Canvas you want to curve has the following requirements met:
-  - The canvas `Render Mode` setting is set to `Screen Space - Camera`.
-    - `Screen Space - Overlay` and `World Space` will not work with Curved UI Utility.
-  - The canvas `Render Camera` setting is set to the designated UI rendering camera from Step 1.
-  - The layer for this Canvas object is set to `UI`.
-    - Be sure to set it for all children too.
-  - If need be, create a new Canvas and drag the UI you want curved over to this one.
+    - The canvas `Render Mode` setting is set to `Screen Space - Camera`.
+        - `Screen Space - Overlay` and `World Space` will not work with Curved UI Utility.
+    - The canvas `Render Camera` setting is set to the designated UI rendering camera from Step 1.
+    - The layer for this Canvas object is set to `UI`.
+        - Be sure to set it for all children too.
+    - If need be, create a new Canvas and drag the UI you want curved over to this one.
 4. Setup a Canvas that will be used to render the curved UI, as well as adding non-curved UI if you wish.
-  - This can be one that already exists, but *cannot* be the same Canvas used for rendering the curved UI.
-  - The `Render Mode` setting for this Canvas do not matter.
-  - If not already, treat this as your new "main" UI canvas.
-  - Ensure that, if present, the settings for the Canvas Scaler component are the same in both this Canvas and the curved Canvas.
+    - This can be one that already exists, but *cannot* be the same Canvas used for rendering the curved UI.
+    - The `Render Mode` setting for this Canvas do not matter.
+    - If not already, treat this as your new "main" UI canvas.
+    - Ensure that, if present, the settings for the Canvas Scaler component are the same in both this Canvas and the curved Canvas.
 5. Add the `CurvedUIController` component to this Canvas, and set the values accordingly.
-  - `Starting Zoom` controls the zoom/curvature of your UI when loading the scene.
-  - `Radial Scale` controls the area of effect for the curved UI. Recommended to keep as is.
-  - `Curved UI Renderer` should point to the `CurvedUIRenderer` component added in Step 2.
+    - `Starting Zoom` controls the zoom/curvature of your UI when loading the scene.
+    - `Radial Scale` controls the area of effect for the curved UI. Recommended to keep as is.
+    - `Curved UI Renderer` should point to the `CurvedUIRenderer` component added in Step 2.
 6. Press play. If done correctly, your curved UI will show up in the Canvas created in Step 4.
-  - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`.
+    - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`.
 
 Unfortunately, with the current setup, you lose the ability to preview your UI changes via the Game tab while in Edit mode. This is something that I will hopefully address with later iterations.
 
