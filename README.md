@@ -22,7 +22,7 @@ This effect relies on a `RenderTexture` rendering from an outside Canvas, which 
 If this solution is too bothersome, another potential method to look into would be a Render Feature. 
 
 # Releases and Installation
-A Unity Asset Package (`.unitypackage`) will be provided soon, and a GitHub Action to create them automatically. I'm still getting the foundations for this project up and running, so please sit tight!.
+To grab a `.unitypackage` for Curved UI Utility, check for the [latest release](https://github.com/Caeden117/Curved-UI-Utility/releases/latest). If none are available, then grab an artifact from [the latest successful Action](https://github.com/Caeden117/Curved-UI-Utility/actions).
 
 **EARLIEST UNITY VERSION TESTED:** 2019.3.15f1
 
@@ -34,11 +34,11 @@ It could totally be possible that Shader Graph is unnecessary for the shader, an
 This repository, along with the source code for Curved UI Utility, also contains a demo scene that gives example implementations in code, and setups in the scene hierarchy. Feel free to clone the source and look at the provided demos to get a feel for Curved UI Utility before adding it to your own project.
 
 ## Setup
-Setup is more complicated than I'd like at this point in development, but if you are interested in setting this up for your project, here's the setup process:
+**Setup is more complicated than I'd like at this point in development**, but if you are interested in setting this up for your project, here's the setup process:
 
 0. Grab a copy of Curved UI Utility.
-  - If available, grab a `.unitypackage` from Releases.
-  - If available, grab a `.unitypackage` from the Actions tab.
+  - If available, grab a `.unitypackage` from [Releases](https://github.com/Caeden117/Curved-UI-Utility/releases/latest).
+  - If available, grab an artifact from [the latest successful Action](https://github.com/Caeden117/Curved-UI-Utility/actions).
     - **WARNING!** These can be less stable than stable releases!
   - If all else fails, clone the repository and copy/paste the `Assets/Curved UI Utility` folder into your project.
 1. Create a Camera designed to render the curved UI.
