@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         echo "Assets/Curved UI Utility.meta" > metaList
-        find Assets/Curved UI Utility/ -name \*.meta >> metaList
+        find "Assets/Curved UI Utility/" -name \*.meta >> metaList
 
     - run: mkdir output
 
