@@ -8,7 +8,7 @@ In those games, your HUD in first person is curved inwards a bit, further drivin
 
 To get a better idea of what I'm talking about, which this clip of the Master Chief entering and exiting a vehicle. Pay attention to the UI elements such as the Shield bar at the top center, and the motion tracker at the bottom left.
 
-![Halo's HUD Effect](https://i.imgur.com/SWqB6Qo.gif)
+![Halo's HUD Effect](https://i.imgur.com/0prewAj.gif)
 
 For some odd reason, I am *really* interested in this effect, and wanted to recreate it in the Unity engine.
 
