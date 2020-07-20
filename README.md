@@ -33,6 +33,14 @@ It could totally be possible that Shader Graph is unnecessary for the shader, an
 ## Github Source
 This repository, along with the source code for Curved UI Utility, also contains a demo scene that gives example implementations in code, and setups in the scene hierarchy. Feel free to clone the source and look at the provided demos to get a feel for Curved UI Utility before adding it to your own project.
 
+#### Available Demos
+- **Squares**
+  - Shows a basic UI and how it is distorted with Curved UI Utility.
+- **Halo**
+  - Essentially the same demo as *Squares*, however with a UI heavy based on the Halo games. Apologies for the terrible programmer art.
+- **First Person with Vehicle** (Recommended)
+  - This demo includes a proper use case for Curved UI Utility: Transitioning from First to Third person, and vice versa.
+
 ## Setup
 **Setup is more complicated than I'd like at this point in development**, but if you are interested in setting this up for your project, here's the setup process:
 
