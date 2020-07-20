@@ -45,6 +45,8 @@ namespace CurvedUIUtility
         [SerializeField] private float radialScale = 0.75f;
         [Tooltip("Curved UI Renderer that will be layered on top of this canvas.")]
         [SerializeField] private CurvedUIRenderer curvedUIRenderer;
+        [Tooltip("Easing for the default UI curve transition.")]
+        [SerializeField] private AnimationCurve curveTransition = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         private float currentZoom = 0;
         private Material curvedUIMaterial;
@@ -109,9 +111,10 @@ namespace CurvedUIUtility
         private IEnumerator SetZoom(float targetZoom, float transitionTime)
         {
             float t = 0;
+            float oldZoom = currentZoom;
             while (t < 1)
             {
-                float zoom = Mathf.Lerp(currentZoom, targetZoom, t);
+                float zoom = Mathf.Lerp(oldZoom, targetZoom, curveTransition.Evaluate(t));
                 t += Time.deltaTime / transitionTime;
                 SetZoomInternal(zoom);
                 yield return new WaitForEndOfFrame();
