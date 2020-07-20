@@ -25,7 +25,7 @@
 
 using UnityEngine;
 
-namespace CurvedUIUtility.Demos
+namespace CurvedUIUtility.Demos.Halo
 {
     public class HaloHUDDemo : MonoBehaviour
     {

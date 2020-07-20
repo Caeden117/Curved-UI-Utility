@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace CurvedUIUtility.Demos
+namespace CurvedUIUtility.Demos.Squares
 {
     public class SquaresHUDDemo : MonoBehaviour
     {
