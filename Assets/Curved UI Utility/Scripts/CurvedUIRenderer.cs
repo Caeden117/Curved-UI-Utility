@@ -45,11 +45,13 @@ namespace CurvedUIUtility
 
         private Vector2 oldGameSize = Vector2.zero;
         private Camera attachedCamera;
+        private Camera mainCamera;
 
         // Start is called before the first frame update
         void Start()
         {
             attachedCamera = GetComponent<Camera>();
+            mainCamera = Camera.main;
             oldGameSize = GetGameViewSize();
             attachedCamera.forceIntoRenderTexture = true;
             attachedCamera.cullingMask = 1 << 5;
@@ -64,6 +66,12 @@ namespace CurvedUIUtility
                 RegenerateRenderTexture();
                 OnDimensionsChanged?.Invoke();
             }
+
+            // TODO We can totally move this over to being handled in CurvedUIController
+            // and reduce initial setup.
+            attachedCamera.transform.position = mainCamera.transform.position;
+            attachedCamera.transform.rotation = mainCamera.transform.rotation;
+            attachedCamera.worldToCameraMatrix = mainCamera.worldToCameraMatrix;
         }
 
         private void OnDestroy()
