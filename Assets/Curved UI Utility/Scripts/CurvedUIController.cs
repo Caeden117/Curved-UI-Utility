@@ -64,11 +64,13 @@ namespace CurvedUIUtility
 
             // Essentially, the curved UI effect is done via a Shader Graph.
             // Let's go find that shader and apply it to our Raw Image.
+            curvedUIMaterial = new Material(Shader.Find("Shader Graphs/CurvedUI"));
+            curvedUIMaterial.name = "Curved UI Material";
+            curvedUIMaterial.SetTexture("_MainTex", curvedUIRenderer.RenderTexture);
+
             curvedUIRawImage = mirrorRect.GetComponent<RawImage>();
             curvedUIRawImage.texture = curvedUIRenderer.RenderTexture;
-            curvedUIRawImage.material = new Material(Shader.Find("Shader Graphs/CurvedUI"));
-            curvedUIMaterial = curvedUIRawImage.material;
-            curvedUIMaterial.SetTexture("_MainTex", curvedUIRenderer.RenderTexture);
+            curvedUIRawImage.material = curvedUIMaterial;
             SetZoomInternal(startingZoom);
 
             curvedUIRenderer.OnDimensionsChanged += CurvedUIDimensionsChanged;
@@ -81,6 +83,11 @@ namespace CurvedUIUtility
         /// <param name="transitionTime">Transition time to animate between the current and new curvature.</param>
         public void SetUICurve(float curve, float transitionTime = 1f)
         {
+            if (curvedUIMaterial is null)
+            {
+                StartCoroutine(WaitForMaterialThenSetCurve(curve, transitionTime));
+                return;
+            }
             // Stop any coroutines, which include the curvature animation.
             StopAllCoroutines();
             if (transitionTime <= 0)
@@ -110,6 +117,12 @@ namespace CurvedUIUtility
                 yield return new WaitForEndOfFrame();
             }
             SetZoomInternal(targetZoom);
+        }
+
+        private IEnumerator WaitForMaterialThenSetCurve(float targetZoom, float transitionTime)
+        {
+            yield return new WaitUntil(() => curvedUIMaterial != null);
+            StartCoroutine(SetZoom(targetZoom, transitionTime));
         }
 
         // Sets stored zoom/curvature level and updates our material.
