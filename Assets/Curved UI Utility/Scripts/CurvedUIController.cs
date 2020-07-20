@@ -73,13 +73,13 @@ namespace CurvedUIUtility
             curvedUIRawImage = mirrorRect.GetComponent<RawImage>();
             curvedUIRawImage.texture = curvedUIRenderer.RenderTexture;
             curvedUIRawImage.material = curvedUIMaterial;
-            SetZoomInternal(startingZoom);
+            SetCurveInstant(startingZoom);
 
             curvedUIRenderer.OnDimensionsChanged += CurvedUIDimensionsChanged;
         }
 
         /// <summary>
-        /// Sets the curve for the <see cref="curvedUIRenderer"/>.
+        /// Sets the curve for the <see cref="curvedUIRenderer"/>, and animates the transition.
         /// </summary>
         /// <param name="curve">Amount of curvature.</param>
         /// <param name="transitionTime">Transition time to animate between the current and new curvature.</param>
@@ -94,10 +94,21 @@ namespace CurvedUIUtility
             StopAllCoroutines();
             if (transitionTime <= 0)
             {
-                SetZoomInternal(curve);
+                SetCurveInstant(curve);
                 return;
             }
             StartCoroutine(SetZoom(curve, transitionTime));
+        }
+
+        /// <summary>
+        /// Instantaneously sets the curve for the <see cref="curvedUIRenderer"/>.
+        /// </summary>
+        /// <param name="curve">Amount of curvature.</param>
+        public void SetCurveInstant(float curve)
+        {
+            currentZoom = curve;
+            curvedUIMaterial.SetFloat(ZoomMultiplier, curve);
+            curvedUIMaterial.SetFloat(RadialScale, radialScale);
         }
 
         // Called when the CurvedUIRenderer detects a change in screen resolution.
@@ -116,24 +127,16 @@ namespace CurvedUIUtility
             {
                 float zoom = Mathf.Lerp(oldZoom, targetZoom, curveTransition.Evaluate(t));
                 t += Time.deltaTime / transitionTime;
-                SetZoomInternal(zoom);
+                SetCurveInstant(zoom);
                 yield return new WaitForEndOfFrame();
             }
-            SetZoomInternal(targetZoom);
+            SetCurveInstant(targetZoom);
         }
 
         private IEnumerator WaitForMaterialThenSetCurve(float targetZoom, float transitionTime)
         {
             yield return new WaitUntil(() => curvedUIMaterial != null);
             StartCoroutine(SetZoom(targetZoom, transitionTime));
-        }
-
-        // Sets stored zoom/curvature level and updates our material.
-        private void SetZoomInternal(float zoom)
-        {
-            currentZoom = zoom;
-            curvedUIMaterial.SetFloat(ZoomMultiplier, zoom);
-            curvedUIMaterial.SetFloat(RadialScale, radialScale);
         }
 
         private void OnDestroy()
