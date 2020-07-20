@@ -55,12 +55,13 @@ This repository, along with the source code for Curved UI Utility, also contains
     - This can be one that already exists, but *cannot* be the same Canvas used for rendering the curved UI.
     - The `Render Mode` setting for this Canvas do not matter.
     - If not already, treat this as your new "main" UI canvas.
-    - Ensure that, if present, the settings for the Canvas Scaler component are the same in both this Canvas and the curved Canvas.
-5. Add the `CurvedUIController` component to this Canvas, and set the values accordingly.
+    - Tweak any Canvas Scaler components so that the end result looks good.
+5. Add the `CurvedUIController` component to the Canvas from Step 4, and set the values accordingly.
     - `Starting Zoom` controls the zoom/curvature of your UI when loading the scene.
     - `Radial Scale` controls the area of effect for the curved UI. Recommended to keep as is.
     - `Curved UI Renderer` should point to the `CurvedUIRenderer` component added in Step 2.
-6. Press play. If done correctly, your curved UI will show up in the Canvas created in Step 4.
+    - `Curve Transition` is what the component will use to transition from one curve to another. Recommended to keep as a basic Ease In/Out transition.
+6. Press play. If done correctly, your curved UI will show up in the Canvas from Step 4.
     - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`.
 
 Unfortunately, with the current setup, you lose the ability to preview your UI changes via the Game tab while in Edit mode. This is something that I will hopefully address with later iterations.
@@ -73,6 +74,12 @@ public void SetUICurve(float curve, float transitionTime = 1f)
 ```
 
 `curve` specifies the amount of curvature the UI should have, and `transitionTime` controls the transition duration (in seconds) through use of a Coroutine. A `transitionTime` of less than or equal to 0 will result in an instantaneous switch and completely bypasses the Coroutine.
+
+If you do not want to have any transition, or want to create your own, it also exposes the following function which bypasses transitions entirely:
+
+```cs
+public void SetCurveInstant(float curve)
+```
 
 You can then easily change the curvature of the UI through various events in your game. For a more gradual curve similar to the Halo games, I recommend keeping the curve value between 0.1 and 0.3.
 
