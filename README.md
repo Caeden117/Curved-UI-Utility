@@ -91,6 +91,12 @@ public void SetCurveInstant(float curve)
 
 You can then easily change the curvature of the UI through various events in your game. For a more gradual curve similar to the Halo games, I recommend keeping the curve value between 0.1 and 0.3.
 
+# Known Issues
+- Curved UI progressivly gets more jittery the farther away from the world origin (0, 0, 0) it is.
+  - Definitely a floating point precision error
+- UI elements that require the mouse (Button, Toggle, InputField, Dropdown, etc.) will probably not work.
+  - Untested however the current Render Texture solution makes the chance of them being broken extremely high.
+
 # TODO
 - Find a way to reduce initial setup for the user
   - Potential paths to look into include the use of a Render Feature.
