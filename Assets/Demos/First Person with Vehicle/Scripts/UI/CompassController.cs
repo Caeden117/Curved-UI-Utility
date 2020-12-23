@@ -39,46 +39,87 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
         [SerializeField] private float textScale;
         [SerializeField] private int ticksInBetweenCardinalDirections = 4;
         [SerializeField] private TextMeshProUGUI tick;
+        [SerializeField] private RectTransform cardinalDirectionTransform;
+        [Space(15)]
+        [SerializeField] private TextMeshProUGUI waypointMarker;
+        [SerializeField] private Location[] locations;
+        [SerializeField] private PlayerControllerManager playerControllerManager;
 
-        private List<TextMeshProUGUI> allTexts = new List<TextMeshProUGUI>();
-        private List<float> startingAnchoredXs = new List<float>();
+        private List<(Location, List<TextMeshProUGUI>)> locationWaypoints = new List<(Location, List<TextMeshProUGUI>)>();
 
         private void Start()
         {
-            int halfIndex = Mathf.FloorToInt((cardinalDirections.Count / 2) - 0.1f);
+            var halfIndex = Mathf.FloorToInt((cardinalDirections.Count / 2) - 0.1f);
+
             for (int i = 0; i < cardinalDirections.Count; i++)
             {
-                TextMeshProUGUI direction = cardinalDirections[i];
-                float anchoredX = (i - halfIndex) * textScale;
+                var direction = cardinalDirections[i];
+                var anchoredX = (i - halfIndex) * textScale;
                 direction.rectTransform.anchoredPosition += new Vector2(anchoredX, 0);
-
-                allTexts.Add(direction);
-                startingAnchoredXs.Add(anchoredX);
 
                 for (int j = 1; j <= ticksInBetweenCardinalDirections; j++)
                 {
-                    TextMeshProUGUI newTick = Instantiate(tick.gameObject, transform).GetComponent<TextMeshProUGUI>();
-                    float tickX = anchoredX + (textScale * ((float)j / (ticksInBetweenCardinalDirections + 1)));
+                    var newTick = Instantiate(tick.gameObject, tick.transform.parent).GetComponent<TextMeshProUGUI>();
+                    var tickX = anchoredX + (textScale * ((float)j / (ticksInBetweenCardinalDirections + 1)));
                     newTick.rectTransform.anchoredPosition += new Vector2(tickX, 0);
-                    allTexts.Add(newTick);
-                    startingAnchoredXs.Add(tickX);
                 }
             }
+
+            for (int i = 0; i < locations.Length; i++)
+            {
+                var location = locations[i];
+                var markers = new List<TextMeshProUGUI>();
+                
+                for (int j = 0; j < 2; j++)
+                {
+                    var marker = Instantiate(waypointMarker.gameObject, waypointMarker.transform.parent).GetComponent<TextMeshProUGUI>();
+                    marker.color = location.LocationColor;
+                    markers.Add(marker);
+                }
+
+                locationWaypoints.Add((location, markers));
+            }
+
+            waypointMarker.gameObject.SetActive(false);
             tick.gameObject.SetActive(false);
         }
 
         private void Update()
         {
-            float y = mainCamera.transform.eulerAngles.y * -1;
-            for (int i = 0; i < allTexts.Count; i++)
-            {
-                TextMeshProUGUI text = allTexts[i];
-                float baseAnchoredPosX = startingAnchoredXs[i];
-                text.rectTransform.anchoredPosition *= new Vector2(0, 1);
+            var y = mainCamera.transform.eulerAngles.y * -1;
+            var newAnchoredPosX = y / 90 * textScale;
+            var loop = textScale * 4;
+            var controller = playerControllerManager.EnabledPlayerController;
 
-                float newAnchoredPosX = baseAnchoredPosX + (y / 90 * textScale);
-                text.rectTransform.anchoredPosition += new Vector2(newAnchoredPosX, 0);
+            cardinalDirectionTransform.anchoredPosition = new Vector2(newAnchoredPosX, cardinalDirectionTransform.anchoredPosition.y);
+
+            foreach (var waypoint in locationWaypoints)
+            {
+                var location = waypoint.Item1;
+                var targetDir = location.LocationCenter - controller.transform.position;
+                targetDir.Set(targetDir.x, 0, targetDir.z);
+                var forward = mainCamera.transform.forward;
+                forward.Set(forward.x, 0, forward.z);
+
+                float angle = Vector3.SignedAngle(targetDir.normalized, forward, Vector3.up) * -1;
+
+                float waypointAnchoredPosX = angle / 90 * textScale;
+
+                for (int i = 0; i < waypoint.Item2.Count; i++)
+                {
+                    var text = waypoint.Item2[i];
+                    var color = text.color;
+
+                    color.a = Mathf.Lerp(text.color.a, location.ContainsPlayer ? 0 : 1, Time.deltaTime);
+                    text.color = color;
+
+                    text.rectTransform.anchoredPosition = new Vector2(
+                        (loop * i) + waypointAnchoredPosX,
+                        text.rectTransform.anchoredPosition.y);
+                }
             }
         }
+
+        private float BetterModulo(float x, float m) => (x % m + m) % m; // thanks stackoverflow
     }
 }

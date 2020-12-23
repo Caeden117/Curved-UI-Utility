@@ -24,8 +24,6 @@
  */
 
 using System.Collections;
-using System.Collections.Generic;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
@@ -59,6 +57,8 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
 
         public override void OnControllerEnable(Camera mainCamera)
         {
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
             this.mainCamera = mainCamera;
             StartCoroutine(TransitionToPlayer());
             curvedUIController.SetUICurve(0.3f);

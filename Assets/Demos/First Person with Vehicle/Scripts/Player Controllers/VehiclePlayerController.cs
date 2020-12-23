@@ -36,6 +36,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
         [SerializeField] private Transform playerEjectionPoint;
         [SerializeField] private Transform playerTransform;
         [SerializeField] private Transform cameraFollowPoint;
+        [SerializeField] private GameObject vehicleEnterTrigger;
         [SerializeField] private float accelleration = 1;
         [SerializeField] private float torqueForce = 10;
         [SerializeField] private float jumpForce = 10;
@@ -78,16 +79,25 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
                 firstPersonController.transform.forward = transform.forward;
                 controllerManager.SetPlayerController(firstPersonController);
             }
-        }
 
-        protected override void PlayerControllerLateUpdate()
-        {
             mainCamera.transform.position = Vector3.Lerp(
                 mainCamera.transform.position,
                 cameraFollowPoint.position, 0.1f);
             mainCamera.transform.rotation = Quaternion.Lerp(
                 mainCamera.transform.rotation,
                 cameraFollowPoint.rotation, 0.1f);
+        }
+
+        public override void OnControllerDisable()
+        {
+            StartCoroutine(TemporarilyHideTrigger());
+        }
+
+        private IEnumerator TemporarilyHideTrigger()
+        {
+            vehicleEnterTrigger.SetActive(false);
+            yield return new WaitForSeconds(0.25f);
+            vehicleEnterTrigger.SetActive(true);
         }
     }
 }
