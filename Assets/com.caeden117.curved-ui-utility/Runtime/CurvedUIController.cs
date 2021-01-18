@@ -65,13 +65,12 @@ namespace CurvedUIUtility
 
         private CurvedUISettings currentCurveSettings = null;
 
-        private void Start()
+        private void Awake()
         {
-            currentCurveSettings = (startingCurveSettings.Clone() ??
-                startingCurveObject.Settings.Clone() ??
-                CurvedUISettings.EmptyCurveSettings) as CurvedUISettings;
-
-            SetCurveSettingsInstant(currentCurveSettings);
+            currentCurveSettings = CurrentCurveSettings.Clone() as CurvedUISettings;
+            
+            currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
+            CurveSettingsChangedEvent?.Invoke();
         }
 
         public void SetCurveSettings(CurvedUISettings newSettings, float transitionTime = 1f)
