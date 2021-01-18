@@ -1,0 +1,17 @@
+{
+    "name": "CurvedUIUtility.Editor",
+    "references": [
+        "GUID:db5c462eddc02b34c99c7242e5b8d7ed"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

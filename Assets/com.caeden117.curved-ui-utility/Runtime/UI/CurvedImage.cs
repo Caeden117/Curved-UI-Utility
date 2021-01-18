@@ -10,8 +10,6 @@ namespace CurvedUIUtility
 {
 	public class CurvedImage : Image
 	{
-		private CurvedUIController curvedUIController;
-
 		private Vector3 cachedPosition = Vector3.zero;
 		private Vector2 cachedUv = Vector2.zero;
 
@@ -22,8 +20,8 @@ namespace CurvedUIUtility
 			this.curvedUIHelper.Reset();
 		}
 
-		// Token: 0x060002D7 RID: 727 RVA: 0x0000D054 File Offset: 0x0000B254
-		protected override void OnPopulateMesh(VertexHelper toFill)
+        // Token: 0x060002D7 RID: 727 RVA: 0x0000D054 File Offset: 0x0000B254
+        protected override void OnPopulateMesh(VertexHelper toFill)
 		{
 			if (base.overrideSprite == null)
 			{
@@ -55,8 +53,8 @@ namespace CurvedUIUtility
 			Vector4 drawingDimensions = this.GetDrawingDimensions(lPreserveAspect);
 			Vector4 vector = (base.overrideSprite != null) ? DataUtility.GetOuterUV(base.overrideSprite) : Vector4.zero;
 
-			int horizontalElements = GetNumberOfElements(Mathf.Abs(drawingDimensions.z - drawingDimensions.x));
-			int verticalElements = GetNumberOfElements(Mathf.Abs(drawingDimensions.w - drawingDimensions.y));
+			int horizontalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(drawingDimensions.z - drawingDimensions.x));
+			int verticalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(drawingDimensions.w - drawingDimensions.y));
 
 			var color32 = (Color32)color;
 
@@ -369,8 +367,8 @@ namespace CurvedUIUtility
 
 		private void AddQuad(VertexHelper vertexHelper, Vector2 posMin, Vector2 posMax, Color32 color, Vector2 uv0Min, Vector2 uv0Max, Vector2 uv1Min, Vector2 uv1Max, float elementWidthScale)
 		{
-			int horizontalElements = GetNumberOfElements(Mathf.Abs(posMin.x - posMax.x));
-			int verticalElements = GetNumberOfElements(Mathf.Abs(posMin.y - posMax.y));
+			int horizontalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(posMin.x - posMax.x));
+			int verticalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(posMin.y - posMax.y));
 			//int numberOfElements = 5;
 			int currentVertCount = vertexHelper.currentVertCount;
 
@@ -738,20 +736,6 @@ namespace CurvedUIUtility
 				xy[num].x = Mathf.LerpUnclamped(xy[corner].x, xy[num2].x, cos);
 				return;
 			}
-		}
-		// Token: 0x060002E4 RID: 740 RVA: 0x0000F608 File Offset: 0x0000D808
-		private int GetNumberOfElements(float width)
-		{
-			if (width < 1 || curvedUIController?.CurrentCurve <= 0.0001f)
-			{
-				return 1;
-			}
-			int num = Mathf.CeilToInt(Mathf.Pow(width, 1/4f));
-			if (num < 1)
-			{
-				num = 1;
-			}
-			return num;
 		}
 
 		// Token: 0x060002E5 RID: 741 RVA: 0x0000F638 File Offset: 0x0000D838

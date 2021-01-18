@@ -39,6 +39,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
 
         [SerializeField] private PlayerController beginningPlayerController;
         [SerializeField] private List<PlayerController> allPlayerControllers;
+        [SerializeField] private CurvedUIController curvedUIController;
 
         private Camera mainCamera;
 
@@ -55,6 +56,9 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
             EnabledPlayerController = controller;
             EnabledPlayerController.OnControllerEnable(mainCamera);
             EnabledPlayerController.IsActive = true;
+
+            curvedUIController.SetCurveSettings(EnabledPlayerController.CurvedUISettings.Settings);
+            
             foreach (PlayerController toDisable in allPlayerControllers.Where(x => x != controller))
             {
                 if (toDisable.IsActive)
@@ -63,6 +67,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
                 }
                 toDisable.IsActive = false;
             }
+
             OnPlayerControllerChanged?.Invoke(EnabledPlayerController);
         }
     }

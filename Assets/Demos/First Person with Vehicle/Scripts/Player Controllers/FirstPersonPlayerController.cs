@@ -61,7 +61,6 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
             transform.localRotation = Quaternion.identity;
             this.mainCamera = mainCamera;
             StartCoroutine(TransitionToPlayer());
-            curvedUIController.SetUICurve(0.3f);
         }
 
         protected override void PlayerControllerUpdate()

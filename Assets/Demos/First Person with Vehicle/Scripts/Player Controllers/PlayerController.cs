@@ -35,6 +35,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
 
         public bool IsActive = false;
         public float MaximumSpeed = 10;
+        public CurvedUISettingsObject CurvedUISettings;
 
         [SerializeField] protected Rigidbody playerRigidbody;
         [SerializeField] protected CurvedUIController curvedUIController;

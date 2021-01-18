@@ -66,8 +66,6 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
 
             firstPersonController.transform.parent.gameObject.SetActive(false);
             timeInVehicle = Time.time;
-
-            curvedUIController.SetUICurve(0f);
         }
 
         protected override void PlayerControllerUpdate()

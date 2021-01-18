@@ -17,10 +17,25 @@ namespace CurvedUIUtility
         private Matrix4x4 cachedCanvasLocalToWorldMatrix;
         private Matrix4x4 cachedCanvasWorldToLocalMatrix;
 
-        private Vector3 screenSize = new Vector3(100, 100, 0);
+        private Vector3 screenSizeOffset = Vector3.zero;
+
+        /// <summary>
+        /// Returns the amount of faces that should be drawn for an item of the given width.
+        /// </summary>
+        /// <param name="width">Total width of the item.</param>
+        /// <returns>The amount of faces that should be drawn for an item of the given width</returns>
+        public static int GetNumberOfElementsForWidth(float width)
+        {
+            if (width < 1) return 1;
+
+            int num = Mathf.CeilToInt(Mathf.Pow(width, 1 / 4f));
+
+            return Mathf.Max(num, 1);
+        }
 
         public void Reset()
         {
+            curvedControllerCache.Clear();
             cachedCanvas = null;
             cachedCanvasIsRootCanvas = false;
             cachedController = null;
@@ -30,31 +45,36 @@ namespace CurvedUIUtility
         // We're saving a bunch of implicit Vector2 conversions by having everything as a Vector3
         public Vector3 GetCurvedPosition(RectTransform transform, Vector3 position)
         {
-            float curve = Application.isPlaying ? cachedController.CurrentCurve : cachedController.StartingCurve;
+            var settings = cachedController.CurrentCurveSettings;
 
             var screenSpace = cachedCanvasWorldToLocalMatrix.MultiplyPoint(transform.TransformPoint(position));
-            DivideVectorValues(ref screenSpace, cachedCanvasSize);
-            MultiplyVectorValues(ref screenSpace, screenSize);
 
-            var distance = screenSpace.magnitude / screenSize.magnitude;
+            screenSpace.Set(
+                Mathf.LerpUnclamped(screenSpace.x, 0, DistanceFromCenter(screenSpace.y, cachedCanvasSize.y / 2, settings.Curve.x)),
+                Mathf.LerpUnclamped(screenSpace.y, 0, DistanceFromCenter(screenSpace.x, cachedCanvasSize.x / 2, settings.Curve.y)),
+                screenSpace.z
+                );
 
-            LerpVectors(ref screenSpace, Vector3.zero, (1f - distance) * curve);
-            DivideVectorValues(ref screenSpace, screenSize);
-            MultiplyVectorValues(ref screenSpace, cachedCanvasSize);
+            screenSpace.Set(
+                screenSpace.x + DistanceFromCenter(screenSpace.y, cachedCanvasSize.y / 2, settings.Pull.x),
+                screenSpace.y + DistanceFromCenter(screenSpace.x, cachedCanvasSize.x / 2, settings.Pull.y),
+                screenSpace.z
+                );
+
+            MultiplyVectorValues(ref screenSpace, settings.Scale);
+            MultiplyVectorValuesIntoResult(ref screenSizeOffset, settings.Offset, cachedCanvasSize);
+            AddVectorValues(ref screenSpace, screenSizeOffset);
 
             return transform.InverseTransformPoint(cachedCanvasLocalToWorldMatrix.MultiplyPoint(screenSpace));
         }
 
         public void PokeScreenSize()
         {
-#if UNITY_EDITOR
-            screenSize = Handles.GetMainGameViewSize() / 2f;
-#else
-            screenSize = new Vector2(Screen.width, Screen.height) / 2f;
-#endif
-            cachedCanvasSize = (cachedCanvas.transform as RectTransform).rect.size * cachedCanvas.transform.localScale;
-            cachedCanvasLocalToWorldMatrix = cachedCanvas.transform.localToWorldMatrix;
-            cachedCanvasWorldToLocalMatrix = cachedCanvas.transform.worldToLocalMatrix;
+            var rect = (cachedCanvas.transform as RectTransform);
+
+            cachedCanvasSize = rect.rect.size;
+            cachedCanvasLocalToWorldMatrix = rect.localToWorldMatrix;
+            cachedCanvasWorldToLocalMatrix = rect.worldToLocalMatrix;
         }
 
         public CurvedUIController GetCurvedUIController(Canvas canvas)
@@ -124,9 +144,19 @@ namespace CurvedUIUtility
             a.Set(a.x * b.x, a.y * b.y, 0);
         }
 
-        private void LerpVectors(ref Vector3 a, Vector3 b, float t)
+        private void MultiplyVectorValuesIntoResult(ref Vector3 result, Vector3 a, Vector3 b)
         {
-            a.Set(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+            result.Set(a.x * b.x, a.y * b.y, 0);
+        }
+
+        private void AddVectorValues(ref Vector3 a, Vector3 b)
+        {
+            a.Set(a.x + b.x, a.y + b.y, 0);
+        }
+
+        private float DistanceFromCenter(float x, float c, float curve)
+        {
+            return (1 - Mathf.Pow(x / c, 2)) * curve;
         }
     }
 }

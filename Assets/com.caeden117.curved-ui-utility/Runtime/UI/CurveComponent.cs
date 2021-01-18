@@ -6,12 +6,15 @@ using UnityEngine.UI;
 namespace CurvedUIUtility
 {
     [RequireComponent(typeof(Graphic))]
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class CurveComponent : MonoBehaviour, IMeshModifier
     {
         private Graphic graphic = null;
+
         private CurvedUIHelper helper = new CurvedUIHelper();
-        private float cachedCurve = 0;
+        private CurvedUIController controller = null;
+
+        private Vector3 cachedPosition = Vector3.positiveInfinity;
 
         private List<UIVertex> cachedVertices = new List<UIVertex>();
         private List<UIVertex> newVertices = new List<UIVertex>();
@@ -20,6 +23,29 @@ namespace CurvedUIUtility
         {
             graphic = GetComponent<Graphic>();
             helper.Reset();
+            helper.GetCurvedUIController(graphic.canvas);
+        }
+
+        private void Start()
+        {
+            controller = helper.GetCurvedUIController(graphic.canvas);
+            if (controller != null)
+            {
+                controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
+            }
+        }
+
+        private void Controller_CurveSettingsChangedEvent()
+        {
+            graphic.SetVerticesDirty();
+        }
+
+        private void OnDestroy()
+        {
+            if (controller != null)
+            {
+                controller.CurveSettingsChangedEvent -= Controller_CurveSettingsChangedEvent;
+            }
         }
 
         public void ModifyMesh(Mesh mesh) { }
@@ -42,10 +68,17 @@ namespace CurvedUIUtility
 
         private void LateUpdate()
         {
-            float currentCurve = helper.GetCurvedUIController(graphic.canvas).CurrentCurve;
-            if (!Mathf.Approximately(currentCurve, cachedCurve))
+            if (!Application.isPlaying)
             {
-                cachedCurve = currentCurve;
+                graphic.SetVerticesDirty();
+                return;
+            }
+
+            var currentPosition = graphic.rectTransform.anchoredPosition3D;
+            
+            if (cachedPosition != currentPosition)
+            {
+                cachedPosition = currentPosition;
                 graphic.SetAllDirty();
             }
         }
