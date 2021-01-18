@@ -9,17 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: |
-        echo "Assets/Curved UI Utility.meta" > metaList
-        find "Assets/Curved UI Utility/" -name \*.meta >> metaList
 
-    - run: mkdir output
-
-    - uses: pCYSl5EDgo/create-unitypackage@master
-      with:
-        package-path: 'output/Curved UI Utility.unitypackage'
-        include-files: metaList
     - uses: actions/upload-artifact@master
       with:
-        path: output
+        path: |
+          Assets/com.caeden117.curved-ui-utility
+          !*.meta
         name: 'Curved UI Utility'
