@@ -1,6 +1,13 @@
 # Curved-UI-Utility
 A Unity package that makes it easy to curve your HUD and give a more immersive first person experience.
 
+## What It Is / What It's Not
+If you do a quick Google search for "unity curved ui", for the most part you will see Unity assets and packages that curve your UI in *world space*, like a cylinder around the player. These kinds of solutions are great in Virtual Reality.
+
+However, Curved UI Utility curves UI elements in *canvas space*, and is meant for overlay canvases. While your UI will indeed be curved, it will still be in the same plane that the Canvas is on.
+
+__**In short, if you want UI that wraps around the player in world space, this is not the package for you.**__
+
 ## Why?
 The idea for this project came from an effect from the Halo games, notibly *Halo 3* and *Halo: Reach*.
 
