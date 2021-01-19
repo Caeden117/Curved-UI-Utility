@@ -6,5 +6,10 @@ namespace CurvedUIUtility
     public class CurvedUISettingsObject : ScriptableObject
     {
         public CurvedUISettings Settings;
+
+        private void OnValidate()
+        {
+            Settings.RefreshBooleans();
+        }
     }
 }

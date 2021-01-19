@@ -43,6 +43,11 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
 
         private float timeInVehicle = 0;
 
+        /*
+         * This is absolutely not how any sane person should implement vehicle movement in Unity.
+         * 
+         * But hey, I'm developing a package for curving HUD, not a realistic driving simulator.
+         */
         public override void HandleMovement(Vector3 movement)
         {
             if (Mathf.Abs(playerRigidbody.velocity.y) >= 0.2f) movement.y *= 0;

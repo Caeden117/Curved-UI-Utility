@@ -1,23 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace CurvedUIUtility
 {
     public class CurvedUIHelper
     {
+        internal static bool ScreenDirty = false;
+
         private static Dictionary<Canvas, CurvedUIController> curvedControllerCache = new Dictionary<Canvas, CurvedUIController>();
 
         private bool hasCachedData;
         private bool cachedCanvasIsRootCanvas;
         private Canvas cachedCanvas;
-        private Vector3 cachedCanvasSize;
+        private Vector2 cachedCanvasSize;
         private CurvedUIController cachedController;
-        private Matrix4x4 cachedCanvasLocalToWorldMatrix;
-        private Matrix4x4 cachedCanvasWorldToLocalMatrix;
 
         private Vector3 screenSizeOffset = Vector3.zero;
+        private int lastCheckedFrameCount = 0;
 
         /// <summary>
         /// Returns the amount of faces that should be drawn for an item of the given width.
@@ -43,38 +46,63 @@ namespace CurvedUIUtility
         }
 
         // We're saving a bunch of implicit Vector2 conversions by having everything as a Vector3
-        public Vector3 GetCurvedPosition(RectTransform transform, Vector3 position)
+        public Vector3 GetCurvedPosition(Vector3 position, Matrix4x4 localToCanvas, Matrix4x4 canvasToLocal, CurvedUISettings settings)
         {
-            var settings = cachedController.CurrentCurveSettings;
+            var screenSpace = localToCanvas.MultiplyPoint(position);
 
-            var screenSpace = cachedCanvasWorldToLocalMatrix.MultiplyPoint(transform.TransformPoint(position));
+            ModifyCurvedPosition(ref screenSpace, settings);
 
-            screenSpace.Set(
-                Mathf.LerpUnclamped(screenSpace.x, 0, DistanceFromCenter(screenSpace.y, cachedCanvasSize.y / 2, settings.Curve.x)),
-                Mathf.LerpUnclamped(screenSpace.y, 0, DistanceFromCenter(screenSpace.x, cachedCanvasSize.x / 2, settings.Curve.y)),
-                screenSpace.z
-                );
+            return canvasToLocal.MultiplyPoint(screenSpace);
+        }
 
-            screenSpace.Set(
-                screenSpace.x + DistanceFromCenter(screenSpace.y, cachedCanvasSize.y / 2, settings.Pull.x),
-                screenSpace.y + DistanceFromCenter(screenSpace.x, cachedCanvasSize.x / 2, settings.Pull.y),
-                screenSpace.z
-                );
+        public void ModifyCurvedPosition(ref Vector3 screenSpace, CurvedUISettings settings)
+        {
+            var xDist = DistanceFromCenter(screenSpace.y, cachedCanvasSize.y / 2);
+            var yDist = DistanceFromCenter(screenSpace.x, cachedCanvasSize.x / 2);
 
-            MultiplyVectorValues(ref screenSpace, settings.Scale);
-            MultiplyVectorValuesIntoResult(ref screenSizeOffset, settings.Offset, cachedCanvasSize);
-            AddVectorValues(ref screenSpace, screenSizeOffset);
+            if (settings.UsingCurve)
+            {
+                var curve = settings.Curve;
+                screenSpace.Set(
+                    screenSpace.x + (0 - screenSpace.x) * xDist * curve.x,
+                    screenSpace.y + (0 - screenSpace.y) * yDist * curve.y,
+                    screenSpace.z
+                    );
+            }
 
-            return transform.InverseTransformPoint(cachedCanvasLocalToWorldMatrix.MultiplyPoint(screenSpace));
+            if (settings.UsingPull)
+            {
+                var pull = settings.Pull;
+                screenSpace.Set(
+                    screenSpace.x + (xDist * pull.x),
+                    screenSpace.y + (yDist * pull.y),
+                    screenSpace.z
+                    );
+            }
+
+            if (settings.UsingScale)
+            {
+                MultiplyVectorValues(ref screenSpace, settings.Scale);
+            }
+
+            if (settings.UsingOffset)
+            {
+                MultiplyVectorValuesIntoResult(ref screenSizeOffset, settings.Offset, cachedCanvasSize);
+                AddVectorValues(ref screenSpace, screenSizeOffset);
+            }
         }
 
         public void PokeScreenSize()
         {
-            var rect = (cachedCanvas.transform as RectTransform);
+            var rectSize = (cachedCanvas.transform as RectTransform).rect.size;
 
-            cachedCanvasSize = rect.rect.size;
-            cachedCanvasLocalToWorldMatrix = rect.localToWorldMatrix;
-            cachedCanvasWorldToLocalMatrix = rect.worldToLocalMatrix;
+            if (lastCheckedFrameCount != Time.frameCount)
+            {
+                ScreenDirty = rectSize != cachedCanvasSize;
+                lastCheckedFrameCount = Time.frameCount;
+            }
+
+            cachedCanvasSize = rectSize;
         }
 
         public CurvedUIController GetCurvedUIController(Canvas canvas)
@@ -106,8 +134,6 @@ namespace CurvedUIUtility
                 cachedCanvas = canvas;
                 cachedCanvasIsRootCanvas = false;
                 cachedCanvasSize = (cachedCanvas.transform as RectTransform).rect.size;
-                cachedCanvasLocalToWorldMatrix = cachedCanvas.transform.localToWorldMatrix;
-                cachedCanvasWorldToLocalMatrix = cachedCanvas.transform.worldToLocalMatrix;
                 hasCachedData = true;
                 return cachedController;
             }
@@ -122,41 +148,25 @@ namespace CurvedUIUtility
 
         private static CurvedUIController GetCurvedControllerForCanvas(Canvas canvas)
         {
-            CurvedUIController component;
-            if (Application.isPlaying && curvedControllerCache.TryGetValue(canvas, out component))
+            if (Application.isPlaying && curvedControllerCache.TryGetValue(canvas, out var component))
             {
                 return component;
             }
             component = canvas.GetComponent<CurvedUIController>();
-            curvedControllerCache[canvas] = component;
+            curvedControllerCache.Add(canvas, component);
             return component;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void MultiplyVectorValues(ref Vector3 a, Vector3 b) => a.Set(a.x * b.x, a.y * b.y, 0);
 
-        // These two helper functions prevent unnecessary allocations
-        private void DivideVectorValues(ref Vector3 a, Vector3 b)
-        {
-            a.Set(a.x / b.x, a.y / b.y, 0);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void MultiplyVectorValuesIntoResult(ref Vector3 result, Vector3 a, Vector2 b) => result.Set(a.x * b.x, a.y * b.y, 0);
 
-        private void MultiplyVectorValues(ref Vector3 a, Vector3 b)
-        {
-            a.Set(a.x * b.x, a.y * b.y, 0);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddVectorValues(ref Vector3 a, Vector3 b) => a.Set(a.x + b.x, a.y + b.y, 0);
 
-        private void MultiplyVectorValuesIntoResult(ref Vector3 result, Vector3 a, Vector3 b)
-        {
-            result.Set(a.x * b.x, a.y * b.y, 0);
-        }
-
-        private void AddVectorValues(ref Vector3 a, Vector3 b)
-        {
-            a.Set(a.x + b.x, a.y + b.y, 0);
-        }
-
-        private float DistanceFromCenter(float x, float c, float curve)
-        {
-            return (1 - Mathf.Pow(x / c, 2)) * curve;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private float DistanceFromCenter(float x, float c) => 1 - (x / c* x / c);
     }
 }

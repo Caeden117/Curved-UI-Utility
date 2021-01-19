@@ -10,6 +10,8 @@ namespace CurvedUIUtility
     {
         public static readonly CurvedUISettings EmptyCurveSettings = new CurvedUISettings();
 
+        private static readonly PropertyChangedEventArgs blankArgs = new PropertyChangedEventArgs("");
+
         [Space(25f)]
         [Header("The Z components for these are unused.")]
 
@@ -25,9 +27,12 @@ namespace CurvedUIUtility
             set
             {
                 curve = value;
+                UsingCurve = value.magnitude > 0.01f;
                 NotifyPropertyChanged();
             }
         }
+
+        public bool UsingCurve { get; private set; } = false;
 
         [Tooltip("Pulls the HUD towards a certain direction.")]
         [SerializeField] private Vector3 pull = Vector3.zero;
@@ -41,10 +46,13 @@ namespace CurvedUIUtility
             set
             {
                 pull = value;
+                UsingPull = value.magnitude > 0.01f;
                 NotifyPropertyChanged();
             }
         }
-        
+
+        public bool UsingPull { get; private set; } = false;
+
         [Tooltip("General scale of the HUD.")]
         [SerializeField] private Vector3 scale = Vector3.one;
 
@@ -57,13 +65,15 @@ namespace CurvedUIUtility
             set
             {
                 scale = value;
+                UsingScale = value.magnitude > 0.01f;
                 NotifyPropertyChanged();
             }
         }
-        
+
+        public bool UsingScale { get; private set; } = false;
+
         [Tooltip("Added offset to the HUD.")]
         [SerializeField] private Vector3 offset = Vector3.zero;
-
         /// <summary>
         /// Added offset to the HUD.
         /// </summary>
@@ -73,19 +83,27 @@ namespace CurvedUIUtility
             set
             {
                 offset = value;
+                UsingOffset = value.magnitude > 0.01f;
                 NotifyPropertyChanged();
             }
         }
+
+        public bool UsingOffset { get; private set; } = false;
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public object Clone()
         {
-            var @new = new CurvedUISettings();
-            @new.curve = curve;
-            @new.pull = pull;
-            @new.scale = scale;
-            @new.offset = offset;
+            var @new = new CurvedUISettings
+            {
+                curve = curve,
+                pull = pull,
+                scale = scale,
+                offset = offset
+            };
+            @new.RefreshBooleans();
+
             return @new;
         }
 
@@ -96,12 +114,22 @@ namespace CurvedUIUtility
             this.scale = scale;
             this.offset = offset;
 
+            RefreshBooleans();
+
             NotifyPropertyChanged();
         }
 
-        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        public void RefreshBooleans()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            UsingCurve = curve.magnitude != 0;
+            UsingPull = pull.magnitude != 0;
+            UsingScale = scale.magnitude != 0;
+            UsingOffset = offset.magnitude != 0;
+        }
+
+        public void NotifyPropertyChanged()
+        {
+            PropertyChanged?.Invoke(this, blankArgs);
         }
     }
 }

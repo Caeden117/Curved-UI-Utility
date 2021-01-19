@@ -40,14 +40,14 @@ namespace CurvedUIUtility
         {
             get
             {
-                if (Application.isPlaying && currentCurveSettings != null) return currentCurveSettings;
+                if (currentCurveSettings != null && Application.isPlaying) return currentCurveSettings;
 
                 switch (settingsSource)
                 {
                     case SettingsSource.FromScriptableObject:
-                        return startingCurveObject.Settings;
+                        return startingCurveObject?.Settings ?? CurvedUISettings.EmptyCurveSettings;
                     case SettingsSource.FromStartingSettings:
-                        return startingCurveSettings;
+                        return startingCurveSettings ?? CurvedUISettings.EmptyCurveSettings;
                     default:
                         return CurvedUISettings.EmptyCurveSettings;
                 }
@@ -68,7 +68,8 @@ namespace CurvedUIUtility
         private void Awake()
         {
             currentCurveSettings = CurrentCurveSettings.Clone() as CurvedUISettings;
-            
+            currentCurveSettings.RefreshBooleans();
+
             currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
             CurveSettingsChangedEvent?.Invoke();
         }

@@ -655,7 +655,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &225522939
 Transform:
   m_ObjectHideFlags: 0
@@ -1316,7 +1316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 0
   MaximumSpeed: 100
-  CurvedUISettings: {fileID: 11400000, guid: 1730a09bd94279d4eb8c490daef8517d, type: 2}
+  CurvedUISettings: {fileID: 11400000, guid: 1fc83e3c7e4527143a8dc901e11fb9ea, type: 2}
   playerRigidbody: {fileID: 533922412}
   curvedUIController: {fileID: 1305148852}
   controllerManager: {fileID: 1967135447}
@@ -3085,7 +3085,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1220502308
 Transform:
   m_ObjectHideFlags: 0
@@ -3323,7 +3323,7 @@ MonoBehaviour:
     pull: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     offset: {x: 0, y: 0, z: 0}
-  startingCurveObject: {fileID: 11400000, guid: 1730a09bd94279d4eb8c490daef8517d,
+  startingCurveObject: {fileID: 11400000, guid: 61de0a595328da048af9dab8e898769c,
     type: 2}
 --- !u!1 &1385152891
 GameObject:
@@ -3904,7 +3904,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1525582190
 Transform:
   m_ObjectHideFlags: 0
@@ -4124,7 +4124,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1710091630
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4141,7 +4141,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -555, y: 484.73}
+  m_AnchoredPosition: {x: -555, y: -203.05}
   m_SizeDelta: {x: -1110, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1710091631
@@ -5473,7 +5473,7 @@ PrefabInstance:
     - target: {fileID: -927199367670048503, guid: ab34f3446956ff94b94fb473b770973c,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -829518939198813830, guid: ab34f3446956ff94b94fb473b770973c,
         type: 3}

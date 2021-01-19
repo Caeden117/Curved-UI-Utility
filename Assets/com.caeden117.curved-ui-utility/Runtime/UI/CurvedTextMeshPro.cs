@@ -7,19 +7,49 @@ using TMPro;
 
 namespace CurvedUIUtility
 {
+    [ExecuteAlways]
     public class CurvedTextMeshPro : TextMeshProUGUI
     {
         private CurvedUIHelper curvedHelper = new CurvedUIHelper();
-        private CurvedUIController controller;
+        private CurvedUIController controller = null;
+
+        private int cachedCharacterCount = 0;
+        private Vector3 cachedPosition = Vector3.zero;
 
         private List<Vector3> cachedVertices = new List<Vector3>();
         private List<Vector3> modifiedVertices = new List<Vector3>();
+
+        private Matrix4x4 cachedCanvasWorldToLocalMatrix;
+        private Matrix4x4 cachedCanvasLocalToWorldMatrix;
 
         protected override void OnEnable()
         {
             base.OnEnable();
             curvedHelper.Reset();
-            curvedHelper.GetCurvedUIController(canvas);
+            controller = curvedHelper.GetCurvedUIController(canvas);
+            controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
+            OnTransformParentChanged();
+            UpdateCurvature();
+        }
+
+        protected override void OnTransformParentChanged()
+        {
+            base.OnTransformParentChanged();
+            cachedCanvasWorldToLocalMatrix = canvas.transform.worldToLocalMatrix;
+            cachedCanvasLocalToWorldMatrix = canvas.transform.localToWorldMatrix;
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            SetAllDirty();
+            OnTransformParentChanged();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            controller.CurveSettingsChangedEvent -= Controller_CurveSettingsChangedEvent;
         }
 
         protected override void GenerateTextMesh()
@@ -73,8 +103,14 @@ namespace CurvedUIUtility
             Vector2 uvBR = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x + endPadding + m_cached_Underline_Character.glyph.glyphRect.width) / m_fontAsset.atlasWidth, uvTL.y); // End Part - Bottom Right
             Vector2 uvTR = new Vector2(uvBR.x, uvBL.y); // End Part - Top Right
 
+            Vector2 uv2 = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x - startPadding + (float)m_cached_Underline_Character.glyph.glyphRect.width / 2) / m_fontAsset.atlasWidth, uvTL.y); // Mid Top Left
+            Vector2 uv3 = new Vector2(uv2.x, uvBL.y); // Mid Bottom Left
+            Vector2 uv4 = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x + endPadding + (float)m_cached_Underline_Character.glyph.glyphRect.width / 2) / m_fontAsset.atlasWidth, uvTL.y); // Mid Top Right
+            Vector2 uv5 = new Vector2(uv4.x, uvBL.y); // Mid Bottom right
+
             var xScale = Mathf.Abs(sdfScale);
             var width = end.x - start.x;
+            float segmentWidth = m_cached_Underline_Character.glyph.metrics.width / 2 * maxScale;
 
             for (int i = 0; i < horizontalElements; i++)
             {
@@ -88,27 +124,61 @@ namespace CurvedUIUtility
                 var tr = index + face + 2;
                 var br = index + face + 3;
 
-                vertices[bl] = start + new Vector3(faceWidth, 0 - (underlineThickness + m_padding) * maxScale, 0); // BL
-                vertices[tl] = start + new Vector3(faceWidth, m_padding * maxScale, 0); // TL
-                vertices[tr] = vertices[tl] + new Vector3(nextFaceWidth - faceWidth, 0, 0); // TR
-                vertices[br] = vertices[bl] + new Vector3(nextFaceWidth - faceWidth, 0, 0); // BR
-
                 if (i == 0)
                 {
+                    vertices[bl] = start + new Vector3(0, 0 - (underlineThickness + m_padding) * maxScale, 0);
+                    vertices[tl] = start + new Vector3(0, m_padding * maxScale, 0);
+                    vertices[tr] = vertices[tl] + new Vector3(segmentWidth, 0, 0);
+                    vertices[br] = vertices[bl] + new Vector3(segmentWidth, 0, 0);
+
                     uvs0[bl] = uvBL;
                     uvs0[tl] = uvTL;
-                    uvs0[tr] = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x - startPadding + (float)m_cached_Underline_Character.glyph.glyphRect.width / 2) / m_fontAsset.atlasWidth, uvTL.y);
-                    uvs0[br] = new Vector2(uvs0[tr].x, uvBL.y);
+                    uvs0[tr] = uv2;
+                    uvs0[br] = uv3;
+                }
+                else if (i == 1)
+                {
+                    vertices[bl] = start + new Vector3(segmentWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
+                    vertices[tl] = start + new Vector3(segmentWidth, m_padding * maxScale, 0);
+                    vertices[tr] = start + new Vector3(nextFaceWidth, m_padding * maxScale, 0);
+                    vertices[br] = start + new Vector3(nextFaceWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
+
+                    uvs0[bl] = uv3;
+                    uvs0[tl] = uv2;
+                    uvs0[tr] = Vector2.Lerp(uvTL, uvTR, nextFaceWidth / width);
+                    uvs0[br] = Vector2.Lerp(uvBL, uvBR, nextFaceWidth / width);
+                }
+                else if (i == horizontalElements - 2)
+                {
+                    vertices[bl] = start + new Vector3(faceWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
+                    vertices[tl] = start + new Vector3(faceWidth, m_padding * maxScale, 0);
+                    vertices[tr] = end + new Vector3(-segmentWidth, m_padding * maxScale, 0);
+                    vertices[br] = end + new Vector3(-segmentWidth, -(underlineThickness + m_padding) * maxScale, 0);
+
+                    uvs0[bl] = Vector2.Lerp(uvBL, uvBR, faceWidth / width);
+                    uvs0[tl] = Vector2.Lerp(uvTL, uvTR, faceWidth / width);
+                    uvs0[tr] = uv4;
+                    uvs0[br] = uv5;
                 }
                 else if (i == horizontalElements - 1)
                 {
-                    uvs0[bl] = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x + endPadding + (float)m_cached_Underline_Character.glyph.glyphRect.width / 2) / m_fontAsset.atlasWidth, uvTL.y); // Mid Top Right
-                    uvs0[tl] = new Vector2(uvs0[bl].x, uvBL.y); // Mid Bottom right
+                    vertices[bl] = end + new Vector3(-segmentWidth, -(underlineThickness + m_padding) * maxScale, 0);
+                    vertices[tl] = end + new Vector3(-segmentWidth, m_padding * maxScale, 0);
+                    vertices[tr] = end + new Vector3(0, m_padding * maxScale, 0);
+                    vertices[br] = end + new Vector3(0, -(underlineThickness + m_padding) * maxScale, 0);
+
+                    uvs0[bl] = uv5;
+                    uvs0[tl] = uv4;
                     uvs0[tr] = uvTR;
                     uvs0[br] = uvBR;
                 }
                 else
                 {
+                    vertices[bl] = start + new Vector3(faceWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
+                    vertices[tl] = start + new Vector3(faceWidth, m_padding * maxScale, 0);
+                    vertices[tr] = vertices[tl] + new Vector3(nextFaceWidth - faceWidth, 0, 0);
+                    vertices[br] = vertices[bl] + new Vector3(nextFaceWidth - faceWidth, 0, 0);
+
                     uvs0[bl] = Vector2.Lerp(uvBL, uvBR, faceWidth / width);
                     uvs0[tl] = Vector2.Lerp(uvTL, uvTR, faceWidth / width);
                     uvs0[tr] = Vector2.Lerp(uvTL, uvTR, nextFaceWidth / width);
@@ -131,11 +201,28 @@ namespace CurvedUIUtility
 
         private void LateUpdate()
         {
-            if (!m_layoutAlreadyDirty)
+            if (!Application.isPlaying)
             {
+                UpdateCurvature();
+                return;
+            }
+
+            if (CurvedUIHelper.ScreenDirty)
+            {
+                OnTransformParentChanged();
+            }
+
+            var position = m_rectTransform.position;
+
+            if (position != cachedPosition || m_characterCount != cachedCharacterCount)
+            {
+                cachedPosition = position;
+                cachedCharacterCount = m_characterCount;
                 UpdateCurvature();
             }
         }
+
+        private void Controller_CurveSettingsChangedEvent() => UpdateCurvature();
 
         private void UpdateCurvature()
         {
@@ -143,9 +230,15 @@ namespace CurvedUIUtility
 
             modifiedVertices.Clear();
 
+            var settings = controller.CurrentCurveSettings;
+            var worldToLocal = m_rectTransform.worldToLocalMatrix;
+            var localToWorld = m_rectTransform.localToWorldMatrix;
+            
             foreach (var v in cachedVertices)
             {
-                modifiedVertices.Add(curvedHelper.GetCurvedPosition(rectTransform, v));
+                var canvasSpace = cachedCanvasWorldToLocalMatrix.MultiplyPoint(localToWorld.MultiplyPoint(v));
+                curvedHelper.ModifyCurvedPosition(ref canvasSpace, settings);
+                modifiedVertices.Add(worldToLocal.MultiplyPoint(cachedCanvasLocalToWorldMatrix.MultiplyPoint(canvasSpace)));
             }
 
             m_mesh.SetVertices(modifiedVertices);

@@ -4,9 +4,9 @@ A Unity package that makes it easy to curve your HUD and give a more immersive f
 ## Why?
 The idea for this project came from an effect from the Halo games, notibly *Halo 3* and *Halo: Reach*.
 
-In those games, your HUD in first person is curved inwards a bit, further driving the feeling that you are playing as a Spartan. When going into third person, the HUD animates and curves back out to its true flat appearance.
+In those games, your HUD in first person is curved inwards a bit, further driving the feeling that you are playing as a Spartan. When going into third person, the HUD animates into its true flat appearance.
 
-To get a better idea of what I'm talking about, which this clip of the Master Chief entering and exiting a vehicle. Pay attention to the UI elements such as the Shield bar at the top center, and the motion tracker at the bottom left.
+To get a better idea of what I'm talking about, which this clip of the Master Chief entering and exiting a vehicle. Pay attention to the UI elements, such as the Shield bar at the top center, and the motion tracker at the bottom left.
 
 ![Halo's HUD Effect](https://i.imgur.com/0prewAj.gif)
 
@@ -15,13 +15,13 @@ For some odd reason, I am *really* interested in this effect, and wanted to recr
 ### My Solution
 ![Curved UI Utility](https://i.imgur.com/UuftlAc.gif)
 
-The basis of this project is essentially a mesh modifier that distorts the UI mesh.
+Curved UI Utility can easily recreate the HUD curve found in games like *Destiny*, *Halo*, and *Cyberpunk 2077*, as well as being configurable enough to create your own. You do not need to recreate your entire UI to take advantage of Curved UI Utility; just slap some components and you are good to go.
 
 # Releases and Installation
 
 **EARLIEST UNITY VERSION TESTED:** 2019.3.15f1
 
-I currently do not have a lot of time to test Curved UI Utility with earlier versions of Unity. As such, minimum Unity versions are also missing from the Unity package manifest. If you are successfully able to get Curved UI Utility working with an earlier Unity version, please let me know and I will update the README.
+I currently do not have a lot of time to test Curved UI Utility with earlier versions of Unity. As such, minimum Unity versions are also missing from the package manifest. If you test Curved UI Utility on earlier Unity versions, then please let me know whether or not you succeeded.
 
 ## Unity Package Manager
 To add Curved UI Utility as a dependency package via Git, please copy and paste the dependency code into your project's `manifest.json` file:
@@ -38,25 +38,21 @@ To add Curved UI Utility as a dependency package via Git, please copy and paste 
 You can also add Curved UI Utility as a dependency package by going into the [Actions page](https://github.com/Caeden117/Curved-UI-Utility/actions) and downloading the latest successful artifact. From there, you can add it to your Unity project as a local package.
 
 ## GitHub Source
-This repository is actually the project that I use to develop Curved UI Utility. Furthermore, it contains a demo scene that gives example implementations in code. Feel free to clone the source and look at the provided demos to get a feel for Curved UI Utility before adding it to your own project.
+This repository is actually the project that I use to develop Curved UI Utility, which explains the long Git URL for the Package Manager.
 
-#### Available Demos
-- **First Person with Vehicle**
-  - This demo includes a complete example of how to use Curved UI Utility.
+With the project, the repository also contains a demo scene that gives an example implementation of Curved UI Utility. Feel free to clone the source and browse through the project before adding it to your own.
 
 # Setup
-**Setup is more complicated than I'd like at this point in development**, but if you are interested in setting this up for your project, here's the setup process:
-
-0. Grab a copy of Curved UI Utility.
+0. Install Curved UI Utility.
 1. Add the `CurvedUIController` component to the Canvas that you wish to curve.
     - `Settings Source` determines where exactly the initial curve settings will come from.
         - `From Scriptable Object` will inherit settings from an `CurvedUISettingsObject` asset. A couple of these are included in the package.
         - `From Starting Settings` will give you basic HUD settings to play around with.
     - `Curve Transition` affects the transition between different HUD settings.
-2. Add/replace various components to child UI objects.
+2. Add/replace various components to child UI objects you wish to curve.
     - `Image`s should be replaced with `CurvedImage`, which increases the mesh detail for a smoother curve.
-    - Any TextMeshPro or Unity UI text should be replaced with `CurvedTextMeshPro`.
-    - `CurveComponent` should safely work with other misc. components and custom graphics.
+    - TextMeshPros should be replaced with `CurvedTextMeshPro`.
+    - `CurveComponent` should be added to every component except `CurvedTextMeshPro`, including `CurvedImage`.
 3. Press play. If done correctly, your curved UI will show up.
     - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`. 
 
@@ -65,7 +61,7 @@ This repository is actually the project that I use to develop Curved UI Utility.
 Currently WIP. I plan on utilizing the GitHub Wiki to document the various components and features of Curved UI Utility.
 
 # TODO
-- Add some editor tools to speed up setup on existing UI configurations.
+- Add some editor tooling to speed up initial setup.
 - Test Curved UI Utility in earlier Unity versions
 - Create more Demo games/scenes to further test Curved UI Utility
 
