@@ -38,14 +38,22 @@ namespace CurvedUIUtility
         {
             OnTransformParentChanged();
             graphic?.SetAllDirty();
-            cachedMesh = CreateNewMesh();
         }
 
         private void OnTransformParentChanged()
         {
-            if (graphic is null || graphic.canvas is null) return;
-            canvasToLocalMatrix = transform.worldToLocalMatrix * graphic.canvas.transform.localToWorldMatrix;
-            localToCanvasMatrix = graphic.canvas.transform.worldToLocalMatrix * transform.localToWorldMatrix;
+            if (graphic == null || graphic.canvas == null) return;
+
+            if (helper.CachedCanvas == null)
+            {
+                canvasToLocalMatrix = transform.worldToLocalMatrix * graphic.canvas.transform.localToWorldMatrix;
+                localToCanvasMatrix = graphic.canvas.transform.worldToLocalMatrix * transform.localToWorldMatrix;
+            }
+            else
+            {
+                canvasToLocalMatrix = transform.worldToLocalMatrix * helper.CachedCanvas.transform.localToWorldMatrix;
+                localToCanvasMatrix = helper.CachedCanvas.transform.worldToLocalMatrix * transform.localToWorldMatrix;
+            }
         }
 
         private void Start()
@@ -91,7 +99,15 @@ namespace CurvedUIUtility
         {
             if (!Application.isPlaying)
             {
-                UpdateCurvature();
+                if (CurvedUIHelper.ScreenDirty)
+                {
+                    OnTransformParentChanged();
+                    graphic.SetAllDirty();
+                }
+                else
+                {
+                    UpdateCurvature();
+                }
                 return;
             }
 
@@ -100,7 +116,7 @@ namespace CurvedUIUtility
                 OnTransformParentChanged();
             }
 
-            var currentPosition = graphic.rectTransform.anchoredPosition3D;
+            var currentPosition = graphic.rectTransform.position;
             
             if (cachedPosition != currentPosition)
             {

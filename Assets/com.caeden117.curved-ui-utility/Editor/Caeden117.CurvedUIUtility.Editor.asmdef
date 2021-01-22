@@ -1,7 +1,8 @@
 {
     "name": "CurvedUIUtility.Editor",
     "references": [
-        "GUID:db5c462eddc02b34c99c7242e5b8d7ed"
+        "GUID:db5c462eddc02b34c99c7242e5b8d7ed",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

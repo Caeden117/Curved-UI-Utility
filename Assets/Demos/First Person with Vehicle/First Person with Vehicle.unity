@@ -433,7 +433,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -935,7 +935,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1204,7 +1204,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1899,7 +1899,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -2464,7 +2464,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &926149669
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3617,7 +3617,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -3819,7 +3819,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -4124,7 +4124,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1710091630
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5014,7 +5014,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -5170,7 +5170,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_textAlignment: 514
   m_characterSpacing: 0
   m_wordSpacing: 0

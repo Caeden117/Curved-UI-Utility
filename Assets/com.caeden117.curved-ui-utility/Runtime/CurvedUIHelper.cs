@@ -9,13 +9,14 @@ namespace CurvedUIUtility
 {
     public class CurvedUIHelper
     {
-        internal static bool ScreenDirty = false;
+        public static bool ScreenDirty = false;
 
         private static Dictionary<Canvas, CurvedUIController> curvedControllerCache = new Dictionary<Canvas, CurvedUIController>();
 
+        public Canvas CachedCanvas;
+
         private bool hasCachedData;
         private bool cachedCanvasIsRootCanvas;
-        private Canvas cachedCanvas;
         private Vector2 cachedCanvasSize;
         private CurvedUIController cachedController;
 
@@ -31,7 +32,7 @@ namespace CurvedUIUtility
         {
             if (width < 1) return 1;
 
-            int num = Mathf.CeilToInt(Mathf.Pow(width, 1 / 4f));
+            int num = Mathf.CeilToInt(width / 100);
 
             return Mathf.Max(num, 1);
         }
@@ -39,7 +40,7 @@ namespace CurvedUIUtility
         public void Reset()
         {
             curvedControllerCache.Clear();
-            cachedCanvas = null;
+            CachedCanvas = null;
             cachedCanvasIsRootCanvas = false;
             cachedController = null;
             hasCachedData = false;
@@ -94,7 +95,9 @@ namespace CurvedUIUtility
 
         public void PokeScreenSize()
         {
-            var rectSize = (cachedCanvas.transform as RectTransform).rect.size;
+            if (CachedCanvas is null) return;
+
+            var rectSize = (CachedCanvas.transform as RectTransform).rect.size;
 
             if (lastCheckedFrameCount != Time.frameCount)
             {
@@ -118,12 +121,12 @@ namespace CurvedUIUtility
                 {
                     return cachedController;
                 }
-                if (!cachedCanvasIsRootCanvas && cachedCanvas == canvas)
+                if (!cachedCanvasIsRootCanvas && CachedCanvas == canvas)
                 {
                     return cachedController;
                 }
                 rootCanvas = canvas.rootCanvas;
-                if (cachedCanvasIsRootCanvas && cachedCanvas == rootCanvas)
+                if (cachedCanvasIsRootCanvas && CachedCanvas == rootCanvas)
                 {
                     return cachedController;
                 }
@@ -131,16 +134,16 @@ namespace CurvedUIUtility
             cachedController = GetCurvedControllerForCanvas(canvas);
             if (cachedController != null)
             {
-                cachedCanvas = canvas;
+                CachedCanvas = canvas;
                 cachedCanvasIsRootCanvas = false;
-                cachedCanvasSize = (cachedCanvas.transform as RectTransform).rect.size;
+                cachedCanvasSize = (CachedCanvas.transform as RectTransform).rect.size;
                 hasCachedData = true;
                 return cachedController;
             }
             rootCanvas = canvas.rootCanvas;
             cachedController = GetCurvedControllerForCanvas(rootCanvas);
             cachedCanvasIsRootCanvas = true;
-            cachedCanvas = rootCanvas;
+            CachedCanvas = rootCanvas;
             cachedCanvasSize = (rootCanvas.transform as RectTransform).rect.size;
             hasCachedData = true;
             return cachedController;
@@ -152,8 +155,14 @@ namespace CurvedUIUtility
             {
                 return component;
             }
+
             component = canvas.GetComponent<CurvedUIController>();
-            curvedControllerCache.Add(canvas, component);
+
+            if (component != null)
+            {
+                curvedControllerCache.Add(canvas, component);
+            }
+
             return component;
         }
 

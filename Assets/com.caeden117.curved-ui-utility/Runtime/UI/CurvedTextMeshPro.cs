@@ -25,6 +25,12 @@ namespace CurvedUIUtility
         protected override void OnEnable()
         {
             base.OnEnable();
+            StartCoroutine(WaitForCanvas());
+        }
+
+        private IEnumerator WaitForCanvas()
+        {
+            yield return new WaitWhile(() => canvas == null);
             curvedHelper.Reset();
             controller = curvedHelper.GetCurvedUIController(canvas);
             controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
@@ -35,21 +41,33 @@ namespace CurvedUIUtility
         protected override void OnTransformParentChanged()
         {
             base.OnTransformParentChanged();
-            cachedCanvasWorldToLocalMatrix = canvas.transform.worldToLocalMatrix;
-            cachedCanvasLocalToWorldMatrix = canvas.transform.localToWorldMatrix;
+            if (curvedHelper.CachedCanvas == null)
+            {
+                cachedCanvasWorldToLocalMatrix = canvas.transform.transform.worldToLocalMatrix;
+                cachedCanvasLocalToWorldMatrix = canvas.transform.localToWorldMatrix;
+            }
+            else
+            {
+                cachedCanvasWorldToLocalMatrix = curvedHelper.CachedCanvas.transform.worldToLocalMatrix;
+                cachedCanvasLocalToWorldMatrix = curvedHelper.CachedCanvas.transform.localToWorldMatrix;
+            }
         }
 
         protected override void OnValidate()
         {
             base.OnValidate();
-            SetAllDirty();
             OnTransformParentChanged();
+            SetAllDirty();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            controller.CurveSettingsChangedEvent -= Controller_CurveSettingsChangedEvent;
+
+            if (controller != null)
+            {
+                controller.CurveSettingsChangedEvent -= Controller_CurveSettingsChangedEvent;
+            }
         }
 
         protected override void GenerateTextMesh()
@@ -103,14 +121,8 @@ namespace CurvedUIUtility
             Vector2 uvBR = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x + endPadding + m_cached_Underline_Character.glyph.glyphRect.width) / m_fontAsset.atlasWidth, uvTL.y); // End Part - Bottom Right
             Vector2 uvTR = new Vector2(uvBR.x, uvBL.y); // End Part - Top Right
 
-            Vector2 uv2 = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x - startPadding + (float)m_cached_Underline_Character.glyph.glyphRect.width / 2) / m_fontAsset.atlasWidth, uvTL.y); // Mid Top Left
-            Vector2 uv3 = new Vector2(uv2.x, uvBL.y); // Mid Bottom Left
-            Vector2 uv4 = new Vector2((m_cached_Underline_Character.glyph.glyphRect.x + endPadding + (float)m_cached_Underline_Character.glyph.glyphRect.width / 2) / m_fontAsset.atlasWidth, uvTL.y); // Mid Top Right
-            Vector2 uv5 = new Vector2(uv4.x, uvBL.y); // Mid Bottom right
-
             var xScale = Mathf.Abs(sdfScale);
             var width = end.x - start.x;
-            float segmentWidth = m_cached_Underline_Character.glyph.metrics.width / 2 * maxScale;
 
             for (int i = 0; i < horizontalElements; i++)
             {
@@ -128,47 +140,23 @@ namespace CurvedUIUtility
                 {
                     vertices[bl] = start + new Vector3(0, 0 - (underlineThickness + m_padding) * maxScale, 0);
                     vertices[tl] = start + new Vector3(0, m_padding * maxScale, 0);
-                    vertices[tr] = vertices[tl] + new Vector3(segmentWidth, 0, 0);
-                    vertices[br] = vertices[bl] + new Vector3(segmentWidth, 0, 0);
+                    vertices[tr] = vertices[tl] + new Vector3(nextFaceWidth, 0, 0);
+                    vertices[br] = vertices[bl] + new Vector3(nextFaceWidth, 0, 0);
 
                     uvs0[bl] = uvBL;
                     uvs0[tl] = uvTL;
-                    uvs0[tr] = uv2;
-                    uvs0[br] = uv3;
-                }
-                else if (i == 1)
-                {
-                    vertices[bl] = start + new Vector3(segmentWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
-                    vertices[tl] = start + new Vector3(segmentWidth, m_padding * maxScale, 0);
-                    vertices[tr] = start + new Vector3(nextFaceWidth, m_padding * maxScale, 0);
-                    vertices[br] = start + new Vector3(nextFaceWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
-
-                    uvs0[bl] = uv3;
-                    uvs0[tl] = uv2;
                     uvs0[tr] = Vector2.Lerp(uvTL, uvTR, nextFaceWidth / width);
                     uvs0[br] = Vector2.Lerp(uvBL, uvBR, nextFaceWidth / width);
                 }
-                else if (i == horizontalElements - 2)
-                {
-                    vertices[bl] = start + new Vector3(faceWidth, 0 - (underlineThickness + m_padding) * maxScale, 0);
-                    vertices[tl] = start + new Vector3(faceWidth, m_padding * maxScale, 0);
-                    vertices[tr] = end + new Vector3(-segmentWidth, m_padding * maxScale, 0);
-                    vertices[br] = end + new Vector3(-segmentWidth, -(underlineThickness + m_padding) * maxScale, 0);
-
-                    uvs0[bl] = Vector2.Lerp(uvBL, uvBR, faceWidth / width);
-                    uvs0[tl] = Vector2.Lerp(uvTL, uvTR, faceWidth / width);
-                    uvs0[tr] = uv4;
-                    uvs0[br] = uv5;
-                }
                 else if (i == horizontalElements - 1)
                 {
-                    vertices[bl] = end + new Vector3(-segmentWidth, -(underlineThickness + m_padding) * maxScale, 0);
-                    vertices[tl] = end + new Vector3(-segmentWidth, m_padding * maxScale, 0);
+                    vertices[bl] = start + new Vector3(faceWidth, -(underlineThickness + m_padding) * maxScale, 0);
+                    vertices[tl] = start + new Vector3(faceWidth, m_padding * maxScale, 0);
                     vertices[tr] = end + new Vector3(0, m_padding * maxScale, 0);
                     vertices[br] = end + new Vector3(0, -(underlineThickness + m_padding) * maxScale, 0);
 
-                    uvs0[bl] = uv5;
-                    uvs0[tl] = uv4;
+                    uvs0[bl] = Vector2.Lerp(uvBL, uvBR, faceWidth / width);
+                    uvs0[tl] = Vector2.Lerp(uvTL, uvTR, faceWidth / width);
                     uvs0[tr] = uvTR;
                     uvs0[br] = uvBR;
                 }
@@ -203,7 +191,15 @@ namespace CurvedUIUtility
         {
             if (!Application.isPlaying)
             {
-                UpdateCurvature();
+                if (CurvedUIHelper.ScreenDirty)
+                {
+                    OnTransformParentChanged();
+                    SetAllDirty();
+                }
+                else
+                {
+                    UpdateCurvature();
+                }
                 return;
             }
 
@@ -226,6 +222,8 @@ namespace CurvedUIUtility
 
         private void UpdateCurvature()
         {
+            if (controller == null) return;
+
             curvedHelper.PokeScreenSize();
 
             modifiedVertices.Clear();
