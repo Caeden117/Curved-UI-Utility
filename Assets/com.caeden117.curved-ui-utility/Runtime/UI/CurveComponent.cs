@@ -128,7 +128,7 @@ namespace CurvedUIUtility
 
         private void UpdateCurvature()
         {
-            if (cachedMesh == null) return;
+            if (cachedMesh == null || controller == null) return;
 
             helper.PokeScreenSize();
 

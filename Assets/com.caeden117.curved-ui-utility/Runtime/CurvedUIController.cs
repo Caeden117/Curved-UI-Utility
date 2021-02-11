@@ -47,7 +47,7 @@ namespace CurvedUIUtility
                     case SettingsSource.FromScriptableObject:
                         return startingCurveObject?.Settings ?? CurvedUISettings.EmptyCurveSettings;
                     case SettingsSource.FromStartingSettings:
-                        return startingCurveSettings ?? CurvedUISettings.EmptyCurveSettings;
+                        return startingCurveSettings;
                     default:
                         return CurvedUISettings.EmptyCurveSettings;
                 }
@@ -60,14 +60,20 @@ namespace CurvedUIUtility
         [SerializeField] private AnimationCurve curveTransition = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         [SerializeField] private SettingsSource settingsSource = SettingsSource.FromStartingSettings;
-        [SerializeField] private CurvedUISettings startingCurveSettings = null;
+        [SerializeField] private CurvedUISettings startingCurveSettings = new CurvedUISettings();
         [SerializeField] private CurvedUISettingsObject startingCurveObject = null;
 
         private CurvedUISettings currentCurveSettings = null;
 
+        private void OnValidate()
+        {
+            if (currentCurveSettings != null) currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
+            Awake();
+        }
+
         private void Awake()
         {
-            currentCurveSettings = CurrentCurveSettings.Clone() as CurvedUISettings;
+            currentCurveSettings = CurrentCurveSettings;
             currentCurveSettings.RefreshBooleans();
 
             currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
@@ -123,6 +129,8 @@ namespace CurvedUIUtility
                 t += Time.deltaTime / time;
                 yield return new WaitForEndOfFrame();
             }
+
+            SetCurveSettingsInstant(target.Clone() as CurvedUISettings);
         }
 
         private void LerpVectorsIntoResult(ref Vector3 res, Vector3 a, Vector3 b, float t)

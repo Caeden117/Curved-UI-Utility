@@ -60,6 +60,7 @@ With the project, the repository also contains a demo scene that gives an exampl
     - `Image`s should be replaced with `CurvedImage`, which increases the mesh detail for a smoother curve.
     - TextMeshPros should be replaced with `CurvedTextMeshPro`.
     - `CurveComponent` should be added to every component except `CurvedTextMeshPro`, including `CurvedImage`.
+    - For masking to work properly, all `RectMask2D`s should be replaced with `Mask`s with curved images.
 3. Press play. If done correctly, your curved UI will show up.
     - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`. 
 

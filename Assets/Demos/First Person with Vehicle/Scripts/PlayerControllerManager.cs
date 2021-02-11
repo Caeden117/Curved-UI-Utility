@@ -40,6 +40,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
         [SerializeField] private PlayerController beginningPlayerController;
         [SerializeField] private List<PlayerController> allPlayerControllers;
         [SerializeField] private CurvedUIController curvedUIController;
+        [SerializeField] private float curveTransitionTime = 0.5f;
 
         private Camera mainCamera;
 
@@ -57,7 +58,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
             EnabledPlayerController.OnControllerEnable(mainCamera);
             EnabledPlayerController.IsActive = true;
 
-            curvedUIController.SetCurveSettings(EnabledPlayerController.CurvedUISettings.Settings);
+            curvedUIController.SetCurveSettings(EnabledPlayerController.CurvedUISettings.Settings, curveTransitionTime);
             
             foreach (PlayerController toDisable in allPlayerControllers.Where(x => x != controller))
             {

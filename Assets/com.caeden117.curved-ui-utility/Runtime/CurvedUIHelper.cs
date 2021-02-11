@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEditor;
@@ -11,7 +12,7 @@ namespace CurvedUIUtility
     {
         public static bool ScreenDirty = false;
 
-        private static Dictionary<Canvas, CurvedUIController> curvedControllerCache = new Dictionary<Canvas, CurvedUIController>();
+        private static ConcurrentDictionary<Canvas, CurvedUIController> curvedControllerCache = new ConcurrentDictionary<Canvas, CurvedUIController>();
 
         public Canvas CachedCanvas;
 
@@ -160,7 +161,7 @@ namespace CurvedUIUtility
 
             if (component != null)
             {
-                curvedControllerCache.Add(canvas, component);
+                curvedControllerCache.TryAdd(canvas, component);
             }
 
             return component;

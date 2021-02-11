@@ -85,10 +85,10 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
 
             mainCamera.transform.position = Vector3.Lerp(
                 mainCamera.transform.position,
-                cameraFollowPoint.position, 0.1f);
+                cameraFollowPoint.position, Time.deltaTime * 10);
             mainCamera.transform.rotation = Quaternion.Lerp(
                 mainCamera.transform.rotation,
-                cameraFollowPoint.rotation, 0.1f);
+                cameraFollowPoint.rotation, Time.deltaTime * 10);
         }
 
         public override void OnControllerDisable()
