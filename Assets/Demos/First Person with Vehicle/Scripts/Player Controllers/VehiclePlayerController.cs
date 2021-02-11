@@ -79,7 +79,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
             {
                 firstPersonController.transform.parent.gameObject.SetActive(true);
                 firstPersonController.transform.parent.position = playerEjectionPoint.position;
-                firstPersonController.transform.forward = transform.forward;
+                firstPersonController.transform.parent.forward = transform.forward;
                 controllerManager.SetPlayerController(firstPersonController);
             }
 

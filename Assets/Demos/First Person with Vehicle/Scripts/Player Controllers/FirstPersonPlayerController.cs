@@ -84,8 +84,8 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
                 mainCamera.transform.position = position;
 
                 Quaternion newRotation = cameraRotationTransform.rotation;
-                Quaternion rotation = Quaternion.Lerp(oldRotation, newRotation, curveTransition.Evaluate(t));
-                mainCamera.transform.localRotation = rotation;
+                Quaternion rotation = Quaternion.Slerp(oldRotation, newRotation, curveTransition.Evaluate(t));
+                mainCamera.transform.rotation = rotation;
 
                 t += Time.deltaTime * 2;
                 yield return new WaitForEndOfFrame();
