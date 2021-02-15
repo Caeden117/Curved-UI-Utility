@@ -11,6 +11,22 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "[1.5.0,2.0.0)",
+            "define": "TMP_MANUALLY_GET_UNDERLINE"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "[2.1.0,3.0.0)",
+            "define": "TMP_MANUALLY_GET_UNDERLINE"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "3.0.0",
+            "define": "TMP_MANUALLY_GET_UNDERLINE"
+        }
+    ],
     "noEngineReferences": false
 }

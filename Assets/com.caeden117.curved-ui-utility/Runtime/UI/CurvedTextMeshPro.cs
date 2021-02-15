@@ -53,12 +53,14 @@ namespace CurvedUIUtility
             }
         }
 
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
             OnTransformParentChanged();
             SetAllDirty();
         }
+#endif
 
         protected override void OnDisable()
         {
@@ -81,6 +83,12 @@ namespace CurvedUIUtility
 
         protected override void DrawUnderlineMesh(Vector3 start, Vector3 end, ref int index, float startScale, float endScale, float maxScale, float sdfScale, Color32 underlineColor)
         {
+#if TMP_MANUALLY_GET_UNDERLINE
+            GetUnderlineSpecialCharacter(m_fontAsset);
+
+            var m_cached_Underline_Character = m_Underline.character;
+#endif
+
             if (m_cached_Underline_Character == null)
             {
                 if (!TMP_Settings.warningsDisabled)
