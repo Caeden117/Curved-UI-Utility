@@ -73,7 +73,7 @@ With the project, the repository also contains a demo scene that gives an exampl
 
 Currently WIP. I plan on utilizing the GitHub Wiki to document the various components and features of Curved UI Utility.
 
-For the time being, most of what you would 
+For the time being, most of what you would want comes from the `CurvedUIController` class.
 
 # TODO
 - Add some editor tooling to speed up initial setup.
