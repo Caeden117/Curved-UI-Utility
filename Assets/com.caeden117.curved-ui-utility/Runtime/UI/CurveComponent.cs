@@ -106,7 +106,7 @@ namespace CurvedUIUtility
                 }
                 else
                 {
-                    UpdateCurvature();
+                    CheckPosition();
                 }
                 return;
             }
@@ -116,8 +116,13 @@ namespace CurvedUIUtility
                 OnTransformParentChanged();
             }
 
+            CheckPosition();
+        }
+
+        private void CheckPosition()
+        {
             var currentPosition = graphic.rectTransform.position;
-            
+
             if (cachedPosition != currentPosition)
             {
                 OnTransformParentChanged();
