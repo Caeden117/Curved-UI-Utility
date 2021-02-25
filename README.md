@@ -31,18 +31,24 @@ Curved UI Utility can easily recreate the HUD curve found in games like *Destiny
 I currently do not have a lot of time to test Curved UI Utility with earlier versions of Unity. As such, minimum Unity versions are also missing from the package manifest. If you test Curved UI Utility on earlier Unity versions, then please let me know whether or not you succeeded.
 
 ## Unity Package Manager
-To add Curved UI Utility as a dependency package via Git, please copy and paste the dependency code into your project's `manifest.json` file:
+
+### Manual
+To manually add Curved UI Utility, copy and paste this code into your project's `manifest.json` file, in the `dependencies` object:
 
 ```json
-{
-  "dependencies": {
-    "com.caeden117.curved-ui-utility": "https://github.com/Caeden117/Curved-UI-Utility.git?path/Assets/com.caeden117.curved-ui-utility"
-  }
-}
+"com.caeden117.curved-ui-utility": "https://github.com/Caeden117/Curved-UI-Utility.git?path/Assets/com.caeden117.curved-ui-utility"
 ```
 
+### OpenUPM
+Have OpenUPM? Cool. You can head over to the [OpenUPM page](https://openupm.com/packages/com.caeden117.curved-ui-utility) and install the `installer.unitypackage` file, and import that directly into your Unity project. The installer will download the contents and automatically install the package.
+
+If you happen to prefer the CLI, then you can execute this command: `openupm add com.caeden117.curved-ui-utility`
+
+## GitHub Releases
+If that doesn't suit your fancy, you can go to the [Releases page](https://github.com/Caeden117/Curved-UI-Utility/releases) and download the latest `Curved.UI.Utility.zip` file. From there, you can add it to your Unity project as a local package.
+
 ## GitHub Actions
-You can also add Curved UI Utility as a dependency package by going into the [Actions page](https://github.com/Caeden117/Curved-UI-Utility/actions) and downloading the latest successful artifact. From there, you can add it to your Unity project as a local package.
+You can also add Curved UI Utility by going into the [Actions page](https://github.com/Caeden117/Curved-UI-Utility/actions) and downloading the latest successful artifact. From there, you can add it to your Unity project as a local package.
 
 ## GitHub Source
 This repository is actually the project that I use to develop Curved UI Utility, which explains the long Git URL for the Package Manager.
@@ -50,10 +56,9 @@ This repository is actually the project that I use to develop Curved UI Utility,
 With the project, the repository also contains a demo scene that gives an example implementation of Curved UI Utility. Feel free to clone the source and browse through the project before adding it to your own.
 
 # Setup
-0. Install Curved UI Utility.
 1. Add the `CurvedUIController` component to the Canvas that you wish to curve.
-    - `Settings Source` determines where exactly the initial curve settings will come from.
-        - `From Scriptable Object` will inherit settings from an `CurvedUISettingsObject` asset. A couple of these are included in the package.
+    - `Settings Source` determines the initial curve settings.
+        - `From Scriptable Object` will inherit settings from a `CurvedUISettingsObject` asset. A couple of these are included in the package, and you can also create your own.
         - `From Starting Settings` will give you basic HUD settings to play around with.
     - `Curve Transition` affects the transition between different HUD settings.
 2. Add/replace various components to child UI objects you wish to curve.
@@ -67,6 +72,8 @@ With the project, the repository also contains a demo scene that gives an exampl
 # Documentation
 
 Currently WIP. I plan on utilizing the GitHub Wiki to document the various components and features of Curved UI Utility.
+
+For the time being, most of what you would 
 
 # TODO
 - Add some editor tooling to speed up initial setup.
