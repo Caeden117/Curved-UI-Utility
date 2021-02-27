@@ -32,6 +32,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
     {
         [SerializeField] private Transform playerTransform;
         [SerializeField] private Transform cameraRotationTransform;
+        [SerializeField] private Animator gridEffectAnimator;
         [SerializeField] private float movementSpeed = 1;
         [SerializeField] private float rotationSpeed = 10;
         [SerializeField] private float jumpForce = 10;
@@ -60,6 +61,7 @@ namespace CurvedUIUtility.Demos.FirstPersonWithVehicle
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
             this.mainCamera = mainCamera;
+            gridEffectAnimator.SetTrigger("TriggerGridRefresh");
             StartCoroutine(TransitionToPlayer());
         }
 
