@@ -34,11 +34,13 @@ namespace CurvedUIUtility
             OnTransformParentChanged();
         }
 
+#if UNITY_EDITOR
         private void OnValidate()
         {
             OnTransformParentChanged();
             graphic?.SetAllDirty();
         }
+#endif
 
         private void OnTransformParentChanged()
         {

@@ -110,6 +110,10 @@ namespace CurvedUIUtility
         {
             var t = 0f;
             var original = currentCurveSettings.Clone() as CurvedUISettings;
+            
+            // Creating a new copy so that the current settings (if they happen to be a scriptable object) aren't overwritten.
+            SetCurveSettingsInstant(original.Clone() as CurvedUISettings);
+
             var cachedCurve = Vector3.zero;
             var cachedPull = Vector3.zero;
             var cachedScale = Vector3.zero;

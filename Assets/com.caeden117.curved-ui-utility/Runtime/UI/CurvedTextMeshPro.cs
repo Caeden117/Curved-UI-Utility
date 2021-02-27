@@ -206,7 +206,7 @@ namespace CurvedUIUtility
                 }
                 else
                 {
-                    UpdateCurvature();
+                    CheckPosition();
                 }
                 return;
             }
@@ -216,6 +216,13 @@ namespace CurvedUIUtility
                 OnTransformParentChanged();
             }
 
+            CheckPosition();
+        }
+
+        private void Controller_CurveSettingsChangedEvent() => UpdateCurvature();
+
+        private void CheckPosition()
+        {
             var position = m_rectTransform.position;
 
             if (position != cachedPosition || m_characterCount != cachedCharacterCount)
@@ -225,8 +232,6 @@ namespace CurvedUIUtility
                 UpdateCurvature();
             }
         }
-
-        private void Controller_CurveSettingsChangedEvent() => UpdateCurvature();
 
         private void UpdateCurvature()
         {
