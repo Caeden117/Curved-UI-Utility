@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor;
 
 namespace CurvedUIUtility
 {
@@ -40,10 +41,13 @@ namespace CurvedUIUtility
 
         protected override void OnTransformParentChanged()
         {
+            if (canvas == null) return;
+
             base.OnTransformParentChanged();
+
             if (curvedHelper.CachedCanvas == null)
             {
-                cachedCanvasWorldToLocalMatrix = canvas.transform.transform.worldToLocalMatrix;
+                cachedCanvasWorldToLocalMatrix = canvas.transform.worldToLocalMatrix;
                 cachedCanvasLocalToWorldMatrix = canvas.transform.localToWorldMatrix;
             }
             else

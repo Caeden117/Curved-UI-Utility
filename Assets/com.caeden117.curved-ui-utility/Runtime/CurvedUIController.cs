@@ -45,7 +45,9 @@ namespace CurvedUIUtility
                 switch (settingsSource)
                 {
                     case SettingsSource.FromScriptableObject:
-                        return startingCurveObject?.Settings ?? CurvedUISettings.EmptyCurveSettings;
+                        return startingCurveObject == null
+                            ? CurvedUISettings.EmptyCurveSettings
+                            : startingCurveObject.Settings;
                     case SettingsSource.FromStartingSettings:
                         return startingCurveSettings;
                     default:
@@ -65,19 +67,31 @@ namespace CurvedUIUtility
 
         private CurvedUISettings currentCurveSettings = null;
 
+#if UNITY_EDITOR
         private void OnValidate()
         {
-            if (currentCurveSettings != null) currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
-            Awake();
+            if (currentCurveSettings != CurrentCurveSettings)
+            {
+                if (currentCurveSettings != null) currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
+                currentCurveSettings = CurrentCurveSettings;
+                currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
+            }
+            CurveSettingsChangedEvent?.Invoke();
         }
+#endif
 
-        private void Awake()
+        private void OnEnable()
         {
             currentCurveSettings = CurrentCurveSettings;
             currentCurveSettings.RefreshBooleans();
 
             currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
             CurveSettingsChangedEvent?.Invoke();
+        }
+
+        private void OnDisable()
+        {
+            currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
         }
 
         public void SetCurveSettings(CurvedUISettings newSettings, float transitionTime = 1f)

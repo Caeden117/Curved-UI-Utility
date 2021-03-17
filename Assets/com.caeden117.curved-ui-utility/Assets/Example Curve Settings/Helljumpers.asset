@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Helljumpers
   m_EditorClassIdentifier: 
   Settings:
-    curve: {x: -0.05, y: 0.05, z: 0}
+    curve: {x: -0.02, y: 0.1, z: 0}
     pull: {x: 0, y: -100, z: 0}
-    scale: {x: 0.9, y: 1, z: 1}
+    scale: {x: 0.9, y: 1.1, z: 1}
     offset: {x: 0, y: 0.05, z: 0}

@@ -31,6 +31,13 @@ namespace CurvedUIUtility
             graphic = GetComponent<Graphic>();
             helper.Reset();
             helper.GetCurvedUIController(graphic.canvas);
+
+            if (controller != null)
+            {
+                controller.CurveSettingsChangedEvent -= Controller_CurveSettingsChangedEvent;
+                controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
+            }
+
             OnTransformParentChanged();
         }
 
@@ -62,10 +69,13 @@ namespace CurvedUIUtility
         {
             cachedMesh = CreateNewMesh();
             controller = helper.GetCurvedUIController(graphic.canvas);
+            
             if (controller != null)
             {
+                controller.CurveSettingsChangedEvent -= Controller_CurveSettingsChangedEvent;
                 controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
             }
+
             UpdateCurvature();
         }
 

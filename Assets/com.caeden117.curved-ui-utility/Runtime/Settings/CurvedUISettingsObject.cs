@@ -10,6 +10,7 @@ namespace CurvedUIUtility
         private void OnValidate()
         {
             Settings.RefreshBooleans();
+            Settings.NotifyPropertyChanged();
         }
     }
 }
