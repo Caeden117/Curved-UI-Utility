@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Sprites;
@@ -21,6 +22,16 @@ namespace CurvedUIUtility
 		protected static readonly Vector3[] s_Uv = new Vector3[4];
 
 		protected readonly CurvedUIHelper curvedUIHelper = new CurvedUIHelper();
+
+		private static readonly FieldInfo indicesList = typeof(VertexHelper).GetField("m_Indices", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo positionsList = typeof(VertexHelper).GetField("m_Positions", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo colorsList = typeof(VertexHelper).GetField("m_Colors", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo uv0List = typeof(VertexHelper).GetField("m_Uv0S", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo uv1List = typeof(VertexHelper).GetField("m_Uv1S", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo uv2List = typeof(VertexHelper).GetField("m_Uv2S", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo uv3List = typeof(VertexHelper).GetField("m_Uv3S", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo normalList = typeof(VertexHelper).GetField("m_Normals", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo tangentList = typeof(VertexHelper).GetField("m_Tangents", BindingFlags.Instance | BindingFlags.NonPublic);
 
 		private Vector3 cachedPosition = Vector3.zero;
 		private Vector2 cachedUv = Vector2.zero;
@@ -62,44 +73,12 @@ namespace CurvedUIUtility
 			Vector4 drawingDimensions = GetDrawingDimensions(lPreserveAspect);
 			Vector4 vector = (overrideSprite != null) ? DataUtility.GetOuterUV(overrideSprite) : Vector4.zero;
 
-			int horizontalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(drawingDimensions.z - drawingDimensions.x));
-			int verticalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(drawingDimensions.w - drawingDimensions.y));
+			s_Xy[0] = new Vector2(drawingDimensions.x, drawingDimensions.y);
+			s_Xy[2] = new Vector2(drawingDimensions.z, drawingDimensions.w);
+			s_Uv[0] = new Vector2(vector.x, vector.y);
+			s_Uv[2] = new Vector2(vector.z, vector.w);
 
-			var color32 = (Color32)color;
-
-			for (int j = 0; j < verticalElements; j++)
-			{
-				float currrentVertProgress = j / (float)verticalElements;
-				float nextVertProgress = (j + 1) / (float)verticalElements;
-
-				float currentPosY = Mathf.LerpUnclamped(drawingDimensions.w, drawingDimensions.y, currrentVertProgress);
-				float currentUvY = Mathf.LerpUnclamped(vector.w, vector.y, currrentVertProgress);
-
-				float nextPosY = Mathf.LerpUnclamped(drawingDimensions.w, drawingDimensions.y, nextVertProgress);
-				float nextUvY = Mathf.LerpUnclamped(vector.w, vector.y, nextVertProgress);
-				for (int i = 0; i < horizontalElements + 1; i++)
-				{
-					float horizProgress = i / (float)horizontalElements;
-					float posX = Mathf.LerpUnclamped(drawingDimensions.x, drawingDimensions.z, horizProgress);
-					float uvX = Mathf.LerpUnclamped(vector.x, vector.z, horizProgress);
-					cachedPosition.Set(posX, currentPosY, 0);
-					cachedUv.Set(uvX, currentUvY);
-					vh.AddVert(cachedPosition, color32, cachedUv, kVec2Zero, kVec2Zero, kVec2Zero, kVec3Zero, kVec4Zero);
-					cachedPosition.Set(posX, nextPosY, 0);
-					cachedUv.Set(uvX, nextUvY);
-					vh.AddVert(cachedPosition, color32, cachedUv, kVec2Zero, kVec2Zero, kVec2Zero, kVec3Zero, kVec4Zero);
-				}
-			}
-
-			for (int j = 0; j < verticalElements; j++)
-			{
-				for (int k = 0; k < horizontalElements; k++)
-				{
-					int num4 = (j * (horizontalElements + 1) * 2) + (k * 2);
-					vh.AddTriangle(num4, 1 + num4, 2 + num4);
-					vh.AddTriangle(2 + num4, 3 + num4, 1 + num4);
-				}
-			}
+			AddQuad(vh, s_Xy[0], s_Xy[2], color, s_Uv[0], s_Uv[2], Vector2.zero, Vector2.zero, 0f);
 		}
 
 		private void GenerateSlicedSprite(VertexHelper toFill)
@@ -346,7 +325,7 @@ namespace CurvedUIUtility
 			}
 		}
 
-		private static void AddQuad(VertexHelper vertexHelper, Vector3[] quadPositions, Color32 color, Vector3[] quadUVs)
+		private void AddQuad(VertexHelper vertexHelper, Vector3[] quadPositions, Color32 color, Vector3[] quadUVs)
 		{
 			int currentVertCount = vertexHelper.currentVertCount;
 			for (int i = 0; i < 4; i++)
@@ -357,13 +336,75 @@ namespace CurvedUIUtility
 			vertexHelper.AddTriangle(currentVertCount + 2, currentVertCount + 3, currentVertCount);
 		}
 
-		private static void AddQuad(VertexHelper vertexHelper, Vector2 posMin, Vector2 posMax, Color32 color, Vector2 uvMin, Vector2 uvMax)
+		private int GetNewVertex4(Dictionary<uint, int> newVectices, List<Vector3> vertices, List<Vector2> uvs, int i1, int i2)
+		{
+			int newIndex = vertices.Count;
+			uint t1 = ((uint)i1 << 16) | (uint)i2;
+			uint t2 = ((uint)i2 << 16) | (uint)i1;
+			if (newVectices.ContainsKey(t2))
+				return newVectices[t2];
+			if (newVectices.ContainsKey(t1))
+				return newVectices[t1];
+
+			newVectices.Add(t1, newIndex);
+
+			vertices.Add((vertices[i1] + vertices[i2]) * 0.5f);
+			uvs.Add((uvs[i1] + uvs[i2]) * 0.5f);
+
+			return newIndex;
+		}
+
+
+		private void Subdivide4(VertexHelper vertexHelper)
+		{
+			var newVectices = new Dictionary<uint, int>();
+			var indices = new List<int>();
+
+			var vertices = positionsList.GetValue(vertexHelper) as List<Vector3>;
+			var uvs = uv0List.GetValue(vertexHelper) as List<Vector2>;
+
+			var triangles = indicesList.GetValue(vertexHelper) as List<int>;
+			for (int i = 0; i < triangles.Count; i += 3)
+			{
+				int i1 = triangles[i + 0];
+				int i2 = triangles[i + 1];
+				int i3 = triangles[i + 2];
+
+				int a = GetNewVertex4(newVectices, vertices, uvs, i1, i2);
+				int b = GetNewVertex4(newVectices, vertices, uvs, i2, i3);
+				int c = GetNewVertex4(newVectices, vertices, uvs, i3, i1);
+				indices.Add(i1); indices.Add(a); indices.Add(c);
+				indices.Add(i2); indices.Add(b); indices.Add(a);
+				indices.Add(i3); indices.Add(c); indices.Add(b);
+				indices.Add(a); indices.Add(b); indices.Add(c); // center triangle
+			}
+
+			positionsList.SetValue(vertexHelper, vertices);
+			indicesList.SetValue(vertexHelper, indices);
+			colorsList.SetValue(vertexHelper, Enumerable.Repeat((Color32)color, uvs.Count).ToList());
+			uv0List.SetValue(vertexHelper, uvs);
+			uv1List.SetValue(vertexHelper, Enumerable.Repeat(kVec2Zero, uvs.Count).ToList());
+			uv2List.SetValue(vertexHelper, Enumerable.Repeat(kVec2Zero, uvs.Count).ToList());
+			uv3List.SetValue(vertexHelper, Enumerable.Repeat(kVec2Zero, uvs.Count).ToList());
+			normalList.SetValue(vertexHelper, Enumerable.Repeat(kVec3Zero, uvs.Count).ToList());
+			tangentList.SetValue(vertexHelper, Enumerable.Repeat(kVec4Zero, uvs.Count).ToList());
+		}
+
+		private void AddVert(VertexHelper vertexHelper, float posX, float posY, float uvX, float uvY)
+        {
+			cachedPosition.Set(posX, posY, 0);
+			cachedUv.Set(uvX, uvY);
+			vertexHelper.AddVert(cachedPosition, color, cachedUv, kVec2Zero, kVec2Zero, kVec2Zero, kVec3Zero, kVec4Zero);
+        }
+
+		private void AddQuad(VertexHelper vertexHelper, Vector2 posMin, Vector2 posMax, Color32 color, Vector2 uvMin, Vector2 uvMax)
 		{
 			int currentVertCount = vertexHelper.currentVertCount;
-			vertexHelper.AddVert(new Vector3(posMin.x, posMin.y, 0f), color, new Vector2(uvMin.x, uvMin.y));
-			vertexHelper.AddVert(new Vector3(posMin.x, posMax.y, 0f), color, new Vector2(uvMin.x, uvMax.y));
-			vertexHelper.AddVert(new Vector3(posMax.x, posMax.y, 0f), color, new Vector2(uvMax.x, uvMax.y));
-			vertexHelper.AddVert(new Vector3(posMax.x, posMin.y, 0f), color, new Vector2(uvMax.x, uvMin.y));
+			AddVert(vertexHelper, posMin.x, posMin.y, uvMin.x, uvMin.y);
+			AddVert(vertexHelper, posMin.x, posMax.y, uvMin.x, uvMax.y);
+			AddVert(vertexHelper, posMax.x, posMax.y, uvMax.x, uvMax.y);
+			AddVert(vertexHelper, posMax.x, posMin.y, uvMax.x, uvMin.y);
+			
 			vertexHelper.AddTriangle(currentVertCount, currentVertCount + 1, currentVertCount + 2);
 			vertexHelper.AddTriangle(currentVertCount + 2, currentVertCount + 3, currentVertCount);
 		}
@@ -372,10 +413,8 @@ namespace CurvedUIUtility
 		{
 			int horizontalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(posMin.x - posMax.x));
 			int verticalElements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Abs(posMin.y - posMax.y));
-			//int numberOfElements = 5;
+			
 			int currentVertCount = vertexHelper.currentVertCount;
-
-			var color32 = color;
 
 			for (int j = 0; j < verticalElements; j++)
 			{
@@ -392,12 +431,8 @@ namespace CurvedUIUtility
 					float horizProgress = i / (float)horizontalElements;
 					float posX = Mathf.LerpUnclamped(posMin.x, posMax.x, horizProgress);
 					float uvX = Mathf.LerpUnclamped(uv0Min.x, uv0Max.x, horizProgress);
-					cachedPosition.Set(posX, currentPosY, 0);
-					cachedUv.Set(uvX, currentUvY);
-					vertexHelper.AddVert(cachedPosition, color32, cachedUv, kVec2Zero, kVec2Zero, kVec2Zero, kVec3Zero, kVec4Zero);
-					cachedPosition.Set(posX, nextPosY, 0);
-					cachedUv.Set(uvX, nextUvY);
-					vertexHelper.AddVert(cachedPosition, color32, cachedUv, kVec2Zero, kVec2Zero, kVec2Zero, kVec3Zero, kVec4Zero);
+					AddVert(vertexHelper, posX, currentPosY, uvX, currentUvY);
+					AddVert(vertexHelper, posX, nextPosY, uvX, nextUvY);
 				}
 			}
 
@@ -504,11 +539,17 @@ namespace CurvedUIUtility
             s_Uv[3] = new Vector2(num3, num2);
 			if (fillAmount < 1f && fillMethod != FillMethod.Horizontal && fillMethod != FillMethod.Vertical)
 			{
+				int elements = CurvedUIHelper.GetNumberOfElementsForWidth(Mathf.Min(Mathf.Abs(s_Xy[0].x - s_Xy[2].x), Mathf.Abs(s_Xy[0].y - s_Xy[2].y))) / 3;
+
 				if (fillMethod == FillMethod.Radial90)
 				{
 					if (RadialCut(s_Xy, s_Uv, fillAmount, fillClockwise, fillOrigin))
 					{
                         AddQuad(toFill, s_Xy, color, s_Uv);
+						for (int i = 0; i < elements; i++)
+						{
+							Subdivide4(toFill);
+						}
 						return;
 					}
 				}
@@ -575,6 +616,10 @@ namespace CurvedUIUtility
                                 AddQuad(toFill, s_Xy, color, s_Uv);
 							}
 						}
+						for (int i = 0; i < elements; i++)
+						{
+							Subdivide4(toFill);
+						}
 						return;
 					}
 					if (fillMethod == FillMethod.Radial360)
@@ -627,9 +672,18 @@ namespace CurvedUIUtility
                                 AddQuad(toFill, s_Xy, color, s_Uv);
 							}
 						}
+						for (int i = 0; i < elements; i++)
+						{
+							Subdivide4(toFill);
+						}
 						return;
 					}
 				}
+            }
+            else
+            {
+				AddQuad(toFill, s_Xy[0], s_Xy[2], color, s_Uv[0], s_Uv[2], Vector2.zero, Vector2.zero, 0f);
+				return;
 			}
 		}
 
