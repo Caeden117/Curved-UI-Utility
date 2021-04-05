@@ -304,3 +304,4 @@ Assets/_TerrainAutoUpgrade/
 # You should like, not ignore these
 !/[Aa]ssets/**/*.meta
 !/[Aa]ssets/**/*.obj
+*.vsconfig
