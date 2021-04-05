@@ -7,6 +7,19 @@ namespace CurvedUIUtility.Editor
 {
     public static class CreateObjectMenu
     {
+        [MenuItem("GameObject/UI/Curved UI Utility/Canvas with Curved UI Controller", false, 0)]
+        public static void CreateCanvas(MenuCommand menuCommand)
+        {
+            using (var uiBase = new UIBase("Canvas", menuCommand, UIResources.TextElementSize))
+            {
+                var canvas = uiBase.GameObject.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                uiBase.GameObject.AddComponent<CanvasScaler>();
+                uiBase.GameObject.AddComponent<GraphicRaycaster>();
+                uiBase.GameObject.AddComponent<CurvedUIController>();
+            }
+        }
+
         [MenuItem("GameObject/UI/Curved UI Utility/Curved Image", false, 100)]
         public static void CreateCurvedImage(MenuCommand menuCommand)
         {
@@ -41,6 +54,7 @@ namespace CurvedUIUtility.Editor
                 image.type = Image.Type.Sliced;
                 image.color = UIResources.DefaultSelectableColor;
 
+                // Add text to the button
                 uiBase.AddChildObject<CurvedTextMeshPro>("Curved Text", (objectBuilder) =>
                 {
                     objectBuilder.RectTransform.anchorMin = Vector2.zero;
@@ -49,7 +63,7 @@ namespace CurvedUIUtility.Editor
 
                     var text = objectBuilder.Component;
                     text.text = "Button";
-                    text.alignment = TMPro.TextAlignmentOptions.Center;
+                    text.alignment = TextAlignmentOptions.Center;
                     text.fontSize = 24;
                     text.color = UIResources.TextColor;
                 });
@@ -73,6 +87,8 @@ namespace CurvedUIUtility.Editor
 
                 var inputField = uiBase.GameObject.AddComponent<TMP_InputField>();
 
+                // Area for the placeholder and real text
+                // We add a mask here so text doesn't overflow from the box itself
                 uiBase.AddChildObject<CurvedImage>("Text Area", (textArea) =>
                 {
                     textArea.RectTransform.anchorMin = Vector2.zero;
@@ -90,6 +106,7 @@ namespace CurvedUIUtility.Editor
                     
                     textArea.GameObject.AddComponent<CurveComponent>();
 
+                    // Placeholder text
                     textArea.AddChildObject<CurvedTextMeshPro>("Placeholder", (placeholder) =>
                     {
                         placeholder.Component.text = "Enter text...";
@@ -104,6 +121,7 @@ namespace CurvedUIUtility.Editor
                         placeholder.RectTransform.offsetMin = Vector2.zero;
                         placeholder.RectTransform.offsetMax = Vector2.zero;
 
+                        // We want it to be half as opaque as the default text color
                         var textColor = UIResources.TextColor;
                         textColor.a *= 0.5f;
                         placeholder.Component.color = textColor;
@@ -112,6 +130,7 @@ namespace CurvedUIUtility.Editor
 
                         inputField.placeholder = placeholder.Component;
                     })
+                    // Actual text
                     .AddChildObject<CurvedTextMeshPro>("Text", (text) =>
                     {
                         text.Component.text = "";
@@ -141,6 +160,12 @@ namespace CurvedUIUtility.Editor
         }
 
         [MenuItem("GameObject/UI/Curved UI Utility/Dropdown", false, 500)]
+        /*
+         * Now admittedly, when I started the whole UIBase and UIObjectBuilder system, I thought it would
+         * result in cleaner code compared to how TMPro does it.
+         * 
+         * Clearly, doing complex UI programatically (like this dropdown) has proven me wrong.
+         */
         public static void CreateDropdown(MenuCommand menuCommand)
         {
             using (var uiBase = new UIBase("Dropdown", menuCommand, UIResources.ThickElementSize))
@@ -153,6 +178,7 @@ namespace CurvedUIUtility.Editor
                 var dropdown = uiBase.GameObject.AddComponent<TMP_Dropdown>();
                 dropdown.targetGraphic = image;
 
+                // Add the label which shows our selected item
                 uiBase.AddChildObject<CurvedTextMeshPro>("Label", (label) =>
                 {
                     label.Component.fontSize = 14;
@@ -166,6 +192,7 @@ namespace CurvedUIUtility.Editor
 
                     dropdown.captionText = label.Component;
                 })
+                // Adds the dropdown arrow
                 .AddChildObject<CurvedImage>("Arrow", (arrow) =>
                 {
                     arrow.Component.sprite = UIResources.DefaultResources.Dropdown;
@@ -177,6 +204,7 @@ namespace CurvedUIUtility.Editor
                     
                     arrow.GameObject.AddComponent<CurveComponent>();
                 })
+                // Adds the box that opens up when you click the dropdown
                 .AddChildObject<CurvedImage>("Template", (template) =>
                 {
                     template.RectTransform.anchorMin = new Vector2(0, 0);
@@ -190,6 +218,7 @@ namespace CurvedUIUtility.Editor
 
                     var scrollRect = template.GameObject.AddComponent<ScrollRect>();
 
+                    // Its scrollbar time.
                     template.AddChildObject<Scrollbar>("Scrollbar", (scrollbar) =>
                     {
                         scrollbar.RectTransform.sizeDelta = UIResources.ThinElementSize;
@@ -199,6 +228,7 @@ namespace CurvedUIUtility.Editor
                         scrollbarImage.type = Image.Type.Sliced;
                         scrollbarImage.color = UIResources.DefaultSelectableColor;
 
+                        // Sliding area for the scrollbar
                         scrollbar.AddChildObject("Sliding Area", (sliderArea) =>
                         {
                             sliderArea.RectTransform.sizeDelta = new Vector2(-20, -20);
@@ -207,6 +237,7 @@ namespace CurvedUIUtility.Editor
 
                             scrollbar.Component.handleRect = sliderArea.RectTransform;
 
+                            // Interactable handle
                             sliderArea.AddChildObject<CurvedImage>("Handle", (handle) =>
                             {
                                 handle.Component.sprite = UIResources.DefaultResources.Standard;
@@ -235,6 +266,8 @@ namespace CurvedUIUtility.Editor
 
                         scrollbar.GameObject.AddComponent<CurveComponent>();
                     })
+                    // Add our viewport, which is where all dropdown items will live.
+                    // We put a mask here so items don't overflow past the dropdown
                     .AddChildObject<CurvedImage>("Viewport", (viewport) =>
                     {
                         viewport.RectTransform.anchorMin = new Vector2(0, 0);
@@ -248,6 +281,7 @@ namespace CurvedUIUtility.Editor
                         var mask = viewport.GameObject.AddComponent<Mask>();
                         mask.showMaskGraphic = false;
 
+                        // Content that will scroll up-down with the scroll bar.
                         viewport.AddChildObject("Content", (content) =>
                         {
                             content.RectTransform.anchorMin = new Vector2(0f, 1);
@@ -256,12 +290,14 @@ namespace CurvedUIUtility.Editor
                             content.RectTransform.anchoredPosition = new Vector2(0, 0);
                             content.RectTransform.sizeDelta = new Vector2(0, 28);
 
+                            // Template item, which will be duplicated for every dropdown option
                             content.AddChildObject<Toggle>("Item", (item) =>
                             {
                                 item.RectTransform.anchorMin = new Vector2(0, 0.5f);
                                 item.RectTransform.anchorMax = new Vector2(1, 0.5f);
                                 item.RectTransform.sizeDelta = new Vector2(0, 20);
 
+                                // Background, also acts as the target for the toggle
                                 item.AddChildObject<CurvedImage>("Item Background", (itemBackground) =>
                                 {
                                     itemBackground.RectTransform.anchorMin = Vector2.zero;
@@ -276,6 +312,7 @@ namespace CurvedUIUtility.Editor
 
                                     item.Component.targetGraphic = itemBackground.Component;
                                 })
+                                // Checkmark for the selected option
                                 .AddChildObject<CurvedImage>("Item Checkmark", (itemCheckmark) =>
                                 {
                                     itemCheckmark.RectTransform.anchorMin = new Vector2(0, 0.5f);
@@ -290,6 +327,7 @@ namespace CurvedUIUtility.Editor
 
                                     item.Component.graphic = itemCheckmark.Component;
                                 })
+                                // Label for what the item represents
                                 .AddChildObject<CurvedTextMeshPro>("Item Label", (itemLabel) =>
                                 {
                                     itemLabel.RectTransform.anchorMin = Vector2.zero;
