@@ -7,5 +7,9 @@
     "name": "Caeden117",
     "email": "caeden.s@outlook.com",
     "url": "https://github.com/Caeden117/Curved-UI-Utility"
+  },
+  "dependencies":
+  {
+    "com.unity.textmeshpro": "1.0.0"
   }
 }
