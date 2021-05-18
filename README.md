@@ -20,7 +20,7 @@ To get a better idea of what I'm talking about, which this clip of the Master Ch
 For some odd reason, I am *really* interested in this effect, and wanted to recreate it in the Unity engine.
 
 ### My Solution
-![Curved UI Utility](https://i.imgur.com/UuftlAc.gif)
+![Curved UI Utility](https://i.imgur.com/8YRuTBa.gif)
 
 Curved UI Utility can easily recreate the HUD curve found in games like *Destiny*, *Halo*, and *Cyberpunk 2077*, as well as being configurable enough to create your own. You do not need to recreate your entire UI to take advantage of Curved UI Utility; just slap some components and you are good to go.
 
@@ -62,12 +62,25 @@ With the project, the repository also contains a demo scene that gives an exampl
         - `From Starting Settings` will give you basic HUD settings to play around with.
     - `Curve Transition` affects the transition between different HUD settings.
 2. Add/replace various components to child UI objects you wish to curve.
-    - `Image`s should be replaced with `CurvedImage`, which increases the mesh detail for a smoother curve.
-    - TextMeshPros should be replaced with `CurvedTextMeshPro`.
-    - `CurveComponent` should be added to every component except `CurvedTextMeshPro`, including `CurvedImage`.
+    - You can right-click the Hierarchy and add `Curved UI Utility` objects via the `UI` context submenu.
+    - If you need to replace existing components
+        - `Image`s should be replaced with `CurvedImage`, which increases the mesh detail for a smoother curve.
+        - TextMeshPros should be replaced with `CurvedTextMeshPro`.
+    - **`CurveComponent` should be added to every component except `CurvedTextMeshPro`, including `CurvedImage`.**
     - For masking to work properly, all `RectMask2D`s should be replaced with `Mask`s with curved images.
 3. Press play. If done correctly, your curved UI will show up.
-    - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`. 
+    - Setup is complete, and you may now write scripts that take advantage of `CurvedUIController`.
+
+# Known Issues
+### Mouse input will never properly hit/trigger Curved UI
+This is because Curved UI Utility is purely visual. Unity's mouse collision system makes the assumption that *all* UI elements are flat.
+
+The closest workaround available is to hide the user's mouse cursor, and use a `CurvedImage` that matches the position of the cursor.
+
+### Certain UI elements are not compatbile with Curved UI Utility
+I do not currently have the time to implement, test, and maintain compatibility with anything outside of basic Unity UI and TextMeshPro components. `CurveComponent` should hopefully be compatible with a lot of existing UI elements, as well as a handful of external ones.
+
+If you need to add special compatibility for your own custom UI, consider forking this repository, and making a pull request.
 
 # Documentation
 
