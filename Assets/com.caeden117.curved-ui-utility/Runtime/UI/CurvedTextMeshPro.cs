@@ -1,16 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
-using UnityEditor;
 
 namespace CurvedUIUtility
 {
     [ExecuteAlways]
-    public class CurvedTextMeshPro : TextMeshProUGUI
+    public class CurvedTextMeshPro : TextMeshProUGUI, ICurveable
     {
+        public bool HasCurvedThisFrame { get; set; } = false;
+
         private CurvedUIHelper curvedHelper = new CurvedUIHelper();
         private CurvedUIController controller = null;
 
@@ -81,6 +80,8 @@ namespace CurvedUIUtility
             base.GenerateTextMesh();
 
             m_mesh.GetVertices(cachedVertices);
+
+            HasCurvedThisFrame = false;
 
             UpdateCurvature();
         }
@@ -199,6 +200,11 @@ namespace CurvedUIUtility
             index = verticesCount;
         }
 
+        private void Update()
+        {
+            HasCurvedThisFrame = false;
+        }
+
         private void LateUpdate()
         {
             if (!Application.isPlaying)
@@ -225,7 +231,7 @@ namespace CurvedUIUtility
 
         private void Controller_CurveSettingsChangedEvent() => UpdateCurvature();
 
-        private void CheckPosition()
+        public void CheckPosition()
         {
             var position = m_rectTransform.position;
 
@@ -237,9 +243,9 @@ namespace CurvedUIUtility
             }
         }
 
-        private void UpdateCurvature()
+        public void UpdateCurvature()
         {
-            if (controller == null) return;
+            if (controller == null || HasCurvedThisFrame) return;
 
             curvedHelper.PokeScreenSize();
 
@@ -259,6 +265,8 @@ namespace CurvedUIUtility
             m_mesh.SetVertices(modifiedVertices);
 
             canvasRenderer.SetMesh(m_mesh);
+
+            HasCurvedThisFrame = true;
         }
     }
 }

@@ -7,10 +7,12 @@ namespace CurvedUIUtility
 {
     [RequireComponent(typeof(Graphic))]
     [ExecuteAlways]
-    public class CurveComponent : MonoBehaviour, IMeshModifier
+    public class CurveComponent : MonoBehaviour, IMeshModifier, ICurveable
     {
         // WE ARE ENTERING REFLECTION LAND FOR PERFORMANCE REASONS PLEASE DO NOT BE ALARMED
         private static readonly FieldInfo vertexHelperPositions = typeof(VertexHelper).GetField("m_Positions", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        public bool HasCurvedThisFrame { get; set; } = false;
 
         private Graphic graphic = null;
 
@@ -102,9 +104,16 @@ namespace CurvedUIUtility
 
             verts.FillMesh(cachedMesh);
 
+            HasCurvedThisFrame = false;
+
             UpdateCurvature();
 
             vertexHelperPositions.SetValue(verts, newVertices);
+        }
+
+        private void Update()
+        {
+            HasCurvedThisFrame = false;
         }
 
         private void LateUpdate()
@@ -131,7 +140,7 @@ namespace CurvedUIUtility
             CheckPosition();
         }
 
-        private void CheckPosition()
+        public void CheckPosition()
         {
             var currentPosition = graphic.rectTransform.position;
 
@@ -143,9 +152,9 @@ namespace CurvedUIUtility
             }
         }
 
-        private void UpdateCurvature()
+        public void UpdateCurvature()
         {
-            if (cachedMesh == null || controller == null) return;
+            if (cachedMesh == null || controller == null || HasCurvedThisFrame) return;
 
             helper.PokeScreenSize();
 
@@ -161,6 +170,8 @@ namespace CurvedUIUtility
             cachedMesh.SetVertices(newVertices);
 
             graphic.canvasRenderer.SetMesh(cachedMesh);
+
+            HasCurvedThisFrame = true;
         }
 
         private Mesh CreateNewMesh()

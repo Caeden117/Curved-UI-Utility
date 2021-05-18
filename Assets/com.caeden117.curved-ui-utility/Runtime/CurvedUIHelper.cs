@@ -65,32 +65,29 @@ namespace CurvedUIUtility
             if (settings.UsingCurve)
             {
                 var curve = settings.Curve;
-                screenSpace.Set(
-                    screenSpace.x + (0 - screenSpace.x) * xDist * curve.x,
-                    screenSpace.y + (0 - screenSpace.y) * yDist * curve.y,
-                    screenSpace.z
-                    );
+                screenSpace.x -= screenSpace.x * xDist * curve.x;
+                screenSpace.y -= screenSpace.y * yDist * curve.y;
             }
 
             if (settings.UsingPull)
             {
                 var pull = settings.Pull;
-                screenSpace.Set(
-                    screenSpace.x + (xDist * pull.x),
-                    screenSpace.y + (yDist * pull.y),
-                    screenSpace.z
-                    );
+                screenSpace.x += xDist * pull.x;
+                screenSpace.y += yDist * pull.y;
             }
 
             if (settings.UsingScale)
             {
-                MultiplyVectorValues(ref screenSpace, settings.Scale);
+                var scale = settings.Scale;
+                screenSpace.x *= scale.x;
+                screenSpace.y *= scale.y;
             }
 
             if (settings.UsingOffset)
             {
-                MultiplyVectorValuesIntoResult(ref screenSizeOffset, settings.Offset, cachedCanvasSize);
-                AddVectorValues(ref screenSpace, screenSizeOffset);
+                var offset = settings.Offset;
+                screenSpace.x += offset.x * cachedCanvasSize.x;
+                screenSpace.y += offset.y * cachedCanvasSize.y;
             }
         }
 
@@ -168,15 +165,6 @@ namespace CurvedUIUtility
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void MultiplyVectorValues(ref Vector3 a, Vector3 b) => a.Set(a.x * b.x, a.y * b.y, 0);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void MultiplyVectorValuesIntoResult(ref Vector3 result, Vector3 a, Vector2 b) => result.Set(a.x * b.x, a.y * b.y, 0);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddVectorValues(ref Vector3 a, Vector3 b) => a.Set(a.x + b.x, a.y + b.y, 0);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private float DistanceFromCenter(float x, float c) => 1 - (x / c* x / c);
+        private float DistanceFromCenter(float x, float c) => 1 - (x / c * x / c);
     }
 }
