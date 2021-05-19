@@ -19,8 +19,8 @@ namespace CurvedUIUtility
         private List<Vector3> cachedVertices = new List<Vector3>();
         private List<Vector3> modifiedVertices = new List<Vector3>();
 
-        private Matrix4x4 cachedCanvasWorldToLocalMatrix;
-        private Matrix4x4 cachedCanvasLocalToWorldMatrix;
+        private Matrix4x4 canvasToLocalMatrix;
+        private Matrix4x4 localToCanvasMatrix;
 
         protected override void OnEnable()
         {
@@ -34,33 +34,15 @@ namespace CurvedUIUtility
             curvedHelper.Reset();
             controller = curvedHelper.GetCurvedUIController(canvas);
             controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
-            OnTransformParentChanged();
+            UpdateMatrices();
             UpdateCurvature();
-        }
-
-        protected override void OnTransformParentChanged()
-        {
-            if (canvas == null) return;
-
-            base.OnTransformParentChanged();
-
-            if (curvedHelper.CachedCanvas == null)
-            {
-                cachedCanvasWorldToLocalMatrix = canvas.transform.worldToLocalMatrix;
-                cachedCanvasLocalToWorldMatrix = canvas.transform.localToWorldMatrix;
-            }
-            else
-            {
-                cachedCanvasWorldToLocalMatrix = curvedHelper.CachedCanvas.transform.worldToLocalMatrix;
-                cachedCanvasLocalToWorldMatrix = curvedHelper.CachedCanvas.transform.localToWorldMatrix;
-            }
         }
 
 #if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
-            OnTransformParentChanged();
+            UpdateMatrices();
             SetAllDirty();
         }
 #endif
@@ -81,8 +63,6 @@ namespace CurvedUIUtility
 
             m_mesh.GetVertices(cachedVertices);
 
-            HasCurvedThisFrame = false;
-
             UpdateCurvature();
         }
 
@@ -91,13 +71,13 @@ namespace CurvedUIUtility
             HasCurvedThisFrame = false;
         }
 
-        private void LateUpdate()
+        private void OnRenderObject()
         {
             if (!Application.isPlaying)
             {
                 if (CurvedUIHelper.ScreenDirty)
                 {
-                    OnTransformParentChanged();
+                    UpdateMatrices();
                     SetAllDirty();
                 }
                 else
@@ -109,7 +89,7 @@ namespace CurvedUIUtility
 
             if (CurvedUIHelper.ScreenDirty)
             {
-                OnTransformParentChanged();
+                UpdateMatrices();
             }
 
             CheckPosition();
@@ -117,12 +97,28 @@ namespace CurvedUIUtility
 
         private void Controller_CurveSettingsChangedEvent() => UpdateCurvature();
 
+        public void UpdateMatrices()
+        {
+            if (canvas == null || m_rectTransform == null) return;
+
+            var canvasTransform = curvedHelper?.CachedCanvas == null ? canvas.transform : curvedHelper.CachedCanvas.transform;
+
+            var transformWorldToLocal = m_rectTransform.worldToLocalMatrix;
+            var transformLocalToWorld = m_rectTransform.localToWorldMatrix;
+            var canvasWorldToLocal = canvasTransform.worldToLocalMatrix;
+            var canvasLocalToWorld = canvasTransform.localToWorldMatrix;
+
+            canvasToLocalMatrix = MatrixUtils.FastMultiplication(ref transformWorldToLocal, ref canvasLocalToWorld);
+            localToCanvasMatrix = MatrixUtils.FastMultiplication(ref canvasWorldToLocal, ref transformLocalToWorld);
+        }
+
         public void CheckPosition()
         {
             var position = m_rectTransform.position;
 
             if (position != cachedPosition || m_characterCount != cachedCharacterCount)
             {
+                UpdateMatrices();
                 cachedPosition = position;
                 cachedCharacterCount = m_characterCount;
                 UpdateCurvature();
@@ -138,14 +134,10 @@ namespace CurvedUIUtility
             modifiedVertices.Clear();
 
             var settings = controller.CurrentCurveSettings;
-            var worldToLocal = m_rectTransform.worldToLocalMatrix;
-            var localToWorld = m_rectTransform.localToWorldMatrix;
             
             foreach (var v in cachedVertices)
             {
-                var canvasSpace = cachedCanvasWorldToLocalMatrix.MultiplyPoint(localToWorld.MultiplyPoint(v));
-                curvedHelper.ModifyCurvedPosition(ref canvasSpace, settings);
-                modifiedVertices.Add(worldToLocal.MultiplyPoint(cachedCanvasLocalToWorldMatrix.MultiplyPoint(canvasSpace)));
+                modifiedVertices.Add(curvedHelper.GetCurvedPosition(v, localToCanvasMatrix, canvasToLocalMatrix, settings));
             }
 
             m_mesh.SetVertices(modifiedVertices);

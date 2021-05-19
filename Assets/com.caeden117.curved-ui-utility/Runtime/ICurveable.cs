@@ -7,5 +7,7 @@
         void CheckPosition();
 
         void UpdateCurvature();
+
+        void UpdateMatrices();
     }
 }

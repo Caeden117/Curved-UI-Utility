@@ -354,7 +354,7 @@ namespace CurvedUIUtility
 			return newIndex;
 		}
 
-
+		// TODO optimise by removing unnecessary List/Dictionary construction
 		private void Subdivide4(VertexHelper vertexHelper)
 		{
 			var newVectices = new Dictionary<uint, int>();

@@ -40,32 +40,16 @@ namespace CurvedUIUtility
                 controller.CurveSettingsChangedEvent += Controller_CurveSettingsChangedEvent;
             }
 
-            OnTransformParentChanged();
+            UpdateMatrices();
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            OnTransformParentChanged();
+            UpdateMatrices();
             graphic?.SetAllDirty();
         }
 #endif
-
-        private void OnTransformParentChanged()
-        {
-            if (graphic == null || graphic.canvas == null) return;
-
-            if (helper.CachedCanvas == null)
-            {
-                canvasToLocalMatrix = transform.worldToLocalMatrix * graphic.canvas.transform.localToWorldMatrix;
-                localToCanvasMatrix = graphic.canvas.transform.worldToLocalMatrix * transform.localToWorldMatrix;
-            }
-            else
-            {
-                canvasToLocalMatrix = transform.worldToLocalMatrix * helper.CachedCanvas.transform.localToWorldMatrix;
-                localToCanvasMatrix = helper.CachedCanvas.transform.worldToLocalMatrix * transform.localToWorldMatrix;
-            }
-        }
 
         private void Start()
         {
@@ -104,8 +88,6 @@ namespace CurvedUIUtility
 
             verts.FillMesh(cachedMesh);
 
-            HasCurvedThisFrame = false;
-
             UpdateCurvature();
 
             vertexHelperPositions.SetValue(verts, newVertices);
@@ -116,13 +98,13 @@ namespace CurvedUIUtility
             HasCurvedThisFrame = false;
         }
 
-        private void LateUpdate()
+        private void OnRenderObject()
         {
             if (!Application.isPlaying)
             {
                 if (CurvedUIHelper.ScreenDirty)
                 {
-                    OnTransformParentChanged();
+                    UpdateMatrices();
                     graphic.SetAllDirty();
                 }
                 else
@@ -134,10 +116,26 @@ namespace CurvedUIUtility
 
             if (CurvedUIHelper.ScreenDirty)
             {
-                OnTransformParentChanged();
+                UpdateMatrices();
             }
 
             CheckPosition();
+        }
+
+        public void UpdateMatrices()
+        {
+
+            if (graphic == null || graphic.canvas == null) return;
+
+            var canvasTransform = helper?.CachedCanvas == null ? graphic.canvas.transform : helper.CachedCanvas.transform;
+
+            var transformWorldToLocal = transform.worldToLocalMatrix;
+            var transformLocalToWorld = transform.localToWorldMatrix;
+            var canvasWorldToLocal = canvasTransform.worldToLocalMatrix;
+            var canvasLocalToWorld = canvasTransform.localToWorldMatrix;
+
+            canvasToLocalMatrix = MatrixUtils.FastMultiplication(ref transformWorldToLocal, ref canvasLocalToWorld);
+            localToCanvasMatrix = MatrixUtils.FastMultiplication(ref canvasWorldToLocal, ref transformLocalToWorld);
         }
 
         public void CheckPosition()
@@ -146,7 +144,7 @@ namespace CurvedUIUtility
 
             if (cachedPosition != currentPosition)
             {
-                OnTransformParentChanged();
+                UpdateMatrices();
                 cachedPosition = currentPosition;
                 UpdateCurvature();
             }
