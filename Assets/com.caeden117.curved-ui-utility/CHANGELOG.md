@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## `0.2.6` - 2021-05-22
+### Added
+- Added `ICurvable` interface to connect all curvable classes
+
+### Changed
+- General micro-optimizations
+	- Changed `CurvedUISettings` properties to fields, and removed boolean properties
+	- Optimized away unnecessary `String.memcpy` calls by using `ref` parameters
+	- Ensured that built-in curving components update once per frame, at most
+- General code analysis and cleanup
+	- Split underline rendering in `CurvedTextMeshPro` to a separate file to reduce clutter
+	- Added `.editorconfig` to the project, at the moment it's very basic
+
 ## `0.2.5` - 2021-05-16
 ### Added
 - Added right-click context menus for easily creating Curved UI Utility objects (similar to Text Mesh Pro)
