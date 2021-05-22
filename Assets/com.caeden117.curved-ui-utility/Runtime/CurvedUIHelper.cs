@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace CurvedUIUtility
 {
@@ -12,7 +8,7 @@ namespace CurvedUIUtility
     {
         public static bool ScreenDirty = false;
 
-        private static ConcurrentDictionary<Canvas, CurvedUIController> curvedControllerCache = new ConcurrentDictionary<Canvas, CurvedUIController>();
+        private static readonly ConcurrentDictionary<Canvas, CurvedUIController> curvedControllerCache = new ConcurrentDictionary<Canvas, CurvedUIController>();
 
         public Canvas CachedCanvas;
 
@@ -21,7 +17,6 @@ namespace CurvedUIUtility
         private Vector2 cachedCanvasSize;
         private CurvedUIController cachedController;
 
-        private Vector3 screenSizeOffset = Vector3.zero;
         private int lastCheckedFrameCount = 0;
 
         /// <summary>

@@ -16,11 +16,11 @@ namespace CurvedUIUtility
 
         private Graphic graphic = null;
 
-        private CurvedUIHelper helper = new CurvedUIHelper();
+        private readonly CurvedUIHelper helper = new CurvedUIHelper();
         private CurvedUIController controller = null;
 
         private List<Vector3> cachedVertices = new List<Vector3>();
-        private List<Vector3> newVertices = new List<Vector3>();
+        private readonly List<Vector3> newVertices = new List<Vector3>();
         private Mesh cachedMesh;
 
         private Vector3 cachedPosition = Vector3.positiveInfinity;
@@ -47,7 +47,7 @@ namespace CurvedUIUtility
         private void OnValidate()
         {
             UpdateMatrices();
-            graphic?.SetAllDirty();
+            if (graphic != null) graphic.SetAllDirty();
         }
 #endif
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using TMPro;
 
@@ -10,13 +11,15 @@ namespace CurvedUIUtility
     {
         public bool HasCurvedThisFrame { get; set; } = false;
 
-        private CurvedUIHelper curvedHelper = new CurvedUIHelper();
+        private readonly CurvedUIHelper curvedHelper = new CurvedUIHelper();
         private CurvedUIController controller = null;
 
         private int cachedCharacterCount = 0;
         private Vector3 cachedPosition = Vector3.zero;
 
+        [SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Adding readonly modifier causes runtime exceptions")]
         private List<Vector3> cachedVertices = new List<Vector3>();
+        [SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Adding readonly modifier causes runtime exceptions")]
         private List<Vector3> modifiedVertices = new List<Vector3>();
 
         private Matrix4x4 canvasToLocalMatrix;

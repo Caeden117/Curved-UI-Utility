@@ -1,0 +1,12 @@
+﻿[*.{cs,vb}]
+
+############################################################################################
+# The following are .NET 5 (or .NET Standard 2.1) features that will not compile in Unity. #
+# To keep backwards compatibility, these will more than likely never be implemented.       #
+############################################################################################
+
+# IDE0090: Use 'new(...)'
+csharp_style_implicit_object_creation_when_type_is_apparent = false
+
+# IDE0066: Convert switch statement to expression
+csharp_style_prefer_switch_expression = false
