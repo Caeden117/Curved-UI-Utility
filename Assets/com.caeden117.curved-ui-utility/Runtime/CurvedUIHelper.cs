@@ -62,33 +62,21 @@ namespace CurvedUIUtility
             var xDist = DistanceFromCenter(screenSpace.y, cachedCanvasSize.y / 2);
             var yDist = DistanceFromCenter(screenSpace.x, cachedCanvasSize.x / 2);
 
-            if (settings.UsingCurve)
-            {
-                var curve = settings.Curve;
-                screenSpace.x -= screenSpace.x * xDist * curve.x;
-                screenSpace.y -= screenSpace.y * yDist * curve.y;
-            }
+            // Curve
+            screenSpace.x -= screenSpace.x * xDist * settings.Curve.x;
+            screenSpace.y -= screenSpace.y * yDist * settings.Curve.y;
 
-            if (settings.UsingPull)
-            {
-                var pull = settings.Pull;
-                screenSpace.x += xDist * pull.x;
-                screenSpace.y += yDist * pull.y;
-            }
+            // Pull
+            screenSpace.x += xDist * settings.Pull.x;
+            screenSpace.y += yDist * settings.Pull.y;
 
-            if (settings.UsingScale)
-            {
-                var scale = settings.Scale;
-                screenSpace.x *= scale.x;
-                screenSpace.y *= scale.y;
-            }
+            // Scale
+            screenSpace.x *= settings.Scale.x;
+            screenSpace.y *= settings.Scale.y;
 
-            if (settings.UsingOffset)
-            {
-                var offset = settings.Offset;
-                screenSpace.x += offset.x * cachedCanvasSize.x;
-                screenSpace.y += offset.y * cachedCanvasSize.y;
-            }
+            // Offset
+            screenSpace.x += settings.Offset.x * cachedCanvasSize.x;
+            screenSpace.y += settings.Offset.y * cachedCanvasSize.y;
         }
 
         public void PokeScreenSize()

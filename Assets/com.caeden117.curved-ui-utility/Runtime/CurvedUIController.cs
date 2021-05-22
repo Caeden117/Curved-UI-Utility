@@ -72,9 +72,9 @@ namespace CurvedUIUtility
         {
             if (currentCurveSettings != CurrentCurveSettings)
             {
-                if (currentCurveSettings != null) currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
+                if (currentCurveSettings != null) currentCurveSettings.SettingsChanged -= CurrentCurveSettings_PropertyChanged;
                 currentCurveSettings = CurrentCurveSettings;
-                currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
+                currentCurveSettings.SettingsChanged += CurrentCurveSettings_PropertyChanged;
             }
             CurveSettingsChangedEvent?.Invoke();
         }
@@ -83,15 +83,14 @@ namespace CurvedUIUtility
         private void OnEnable()
         {
             currentCurveSettings = CurrentCurveSettings;
-            currentCurveSettings.RefreshBooleans();
 
-            currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
+            currentCurveSettings.SettingsChanged += CurrentCurveSettings_PropertyChanged;
             CurveSettingsChangedEvent?.Invoke();
         }
 
         private void OnDisable()
         {
-            currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
+            currentCurveSettings.SettingsChanged -= CurrentCurveSettings_PropertyChanged;
         }
 
         public void SetCurveSettings(CurvedUISettings newSettings, float transitionTime = 1f)
@@ -109,13 +108,13 @@ namespace CurvedUIUtility
 
         public void SetCurveSettingsInstant(CurvedUISettings newSettings)
         {
-            currentCurveSettings.PropertyChanged -= CurrentCurveSettings_PropertyChanged;
+            currentCurveSettings.SettingsChanged -= CurrentCurveSettings_PropertyChanged;
             currentCurveSettings = newSettings;
-            currentCurveSettings.PropertyChanged += CurrentCurveSettings_PropertyChanged;
+            currentCurveSettings.SettingsChanged += CurrentCurveSettings_PropertyChanged;
             CurveSettingsChangedEvent?.Invoke();
         }
 
-        private void CurrentCurveSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void CurrentCurveSettings_PropertyChanged()
         {
             CurveSettingsChangedEvent?.Invoke();
         }
