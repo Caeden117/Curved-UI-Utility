@@ -124,7 +124,6 @@ namespace CurvedUIUtility
 
         public void UpdateMatrices()
         {
-
             if (graphic == null || graphic.canvas == null) return;
 
             var canvasTransform = helper?.CachedCanvas == null ? graphic.canvas.transform : helper.CachedCanvas.transform;
@@ -162,7 +161,7 @@ namespace CurvedUIUtility
 
             foreach (var v in cachedVertices)
             {
-                newVertices.Add(helper.GetCurvedPosition(v, localToCanvasMatrix, canvasToLocalMatrix, settings));
+                newVertices.Add(helper.GetCurvedPosition(v, ref localToCanvasMatrix, ref canvasToLocalMatrix, settings));
             }
 
             cachedMesh.SetVertices(newVertices);

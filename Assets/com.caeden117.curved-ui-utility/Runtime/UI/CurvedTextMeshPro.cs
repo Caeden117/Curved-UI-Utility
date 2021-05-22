@@ -137,7 +137,7 @@ namespace CurvedUIUtility
             
             foreach (var v in cachedVertices)
             {
-                modifiedVertices.Add(curvedHelper.GetCurvedPosition(v, localToCanvasMatrix, canvasToLocalMatrix, settings));
+                modifiedVertices.Add(curvedHelper.GetCurvedPosition(v, ref localToCanvasMatrix, ref canvasToLocalMatrix, settings));
             }
 
             m_mesh.SetVertices(modifiedVertices);

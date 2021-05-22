@@ -48,7 +48,7 @@ namespace CurvedUIUtility
         }
 
         // We're saving a bunch of implicit Vector2 conversions by having everything as a Vector3
-        public Vector3 GetCurvedPosition(Vector3 position, Matrix4x4 localToCanvas, Matrix4x4 canvasToLocal, CurvedUISettings settings)
+        public Vector3 GetCurvedPosition(Vector3 position, ref Matrix4x4 localToCanvas, ref Matrix4x4 canvasToLocal, CurvedUISettings settings)
         {
             var screenSpace = localToCanvas.MultiplyPoint(position);
 
